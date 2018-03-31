@@ -4,17 +4,19 @@
   "description": "food journal app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --exit"
   },
   "author": "Hung Nguyen",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "chai": "^4.1.2",
-    "chai-http": "^4.0.0",
     "express": "^4.16.3",
-    "mocha": "^5.0.5",
     "mongoose": "^5.0.12",
     "morgan": "^1.9.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "mocha": "^5.0.5"
   }
 }
