@@ -1,9 +1,17 @@
+'use strict';
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({
-	username: String,
-	password: String,
+	username: {
+		type: String,
+		required: true,
+		unique: true
+	},
+	password: {
+		type: String,
+		required: true
+	},
 	email: String,
 	firstname: String,
 	lastname: String
@@ -11,5 +19,5 @@ const UserSchema = mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = { User };
+module.exports = {User};
 
