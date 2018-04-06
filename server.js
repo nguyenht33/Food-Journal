@@ -10,11 +10,13 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
 const { router: usersRouter } = require('./users');
+const { router: entriesRouter} = require('./entries');
 const { PORT, DATABASE_URL } = require('./config');
 
-app.use('/api/users/', usersRouter);
 app.use(express.static('public'));
 app.use(morgan('common'));
+app.use('/api/users/', usersRouter);
+app.use('/api/entries/', entriesRouter);
 
 let server;
 

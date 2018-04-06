@@ -1,19 +1,15 @@
 'use strict';
-
 const chai = require('chai');
-const chaiHttp = require('chai-http');
-const app = require('../server.js');
-
 const expect = chai.expect;
+const request = require('supertest');
 
-chai.use(chaiHttp);
+const {app} = require('../server.js');
 
-describe('index page', function () {
-  it('should exist', function () {
-    return chai.request(app)
+describe('index page', () => {
+  it('should exist', (done) => {
+    request(app)
       .get('/')
-      .then(function (res) {
-        expect(res).to.have.status(200);
-      });
+      .expect(200)
+      .end(done);
   });
 });
