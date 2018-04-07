@@ -26,7 +26,11 @@ const UserSchema = mongoose.Schema({
 		type: String,
 		minlength: 1,
 		trim: true
-	}
+	},
+	entries: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Entry'
+	}]
 });
 
 UserSchema.methods.serialize = function() {

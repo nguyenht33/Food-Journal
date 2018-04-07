@@ -7,7 +7,7 @@ const assert = require('assert');
 const { app } = require('../server');
 const { User } = require('../users');
 
-describe('Unit Tests', () => {
+describe('Users Unit Tests', () => {
 	let joe;
 	beforeEach(() => {
 		joe = new User({
@@ -47,7 +47,7 @@ describe('Unit Tests', () => {
 	});
 });
 
-describe('Intergration Test', () => {
+describe('Users Intergration Test', () => {
 	const testUser = [{
 		username: 'joe',
 		password: 'password',
@@ -176,7 +176,6 @@ describe('Intergration Test', () => {
 				});
 		});
 	});
-
 });
 
 

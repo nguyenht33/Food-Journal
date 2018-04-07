@@ -16,6 +16,13 @@ beforeEach(done => {
 	});
 });
 
+beforeEach(done => {
+	const { entries } = mongoose.connection.collections;
+	entries.drop(() => {
+		done();
+	});
+});
+
 after(function() {
 	return closeServer();
 });

@@ -35,6 +35,18 @@ router.get('/', jsonParser, (req, res) => {
 		});
 });
 
+router.get('/:id', jsonParser, (req, res) => {
+	Entry
+		.findOne({_id: req.params.id})
+		.then(entry => {
+			res.status(200).json(entry.serialize());
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error'});
+		});
+});
+
 router.put('/:id', jsonParser, (req, res) => {
 	Entry
 		.findOneAndUpdate({_id: req.params.id}, req.body)
