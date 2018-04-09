@@ -1,8 +1,11 @@
 'use strict';
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'),
+			Schema = mongoose.Schema;
+
 mongoose.Promise = global.Promise;
 
-const MealSchema = mongoose.Schema({
+
+const MealSchema = Schema({
 	meal: String,
 	time: Date,
 	food: [
@@ -12,14 +15,15 @@ const MealSchema = mongoose.Schema({
 	note: String
 })
 
-const EntrySchema = mongoose.Schema({
+const EntrySchema = Schema({
 	date: Date,
 	water: Number,
 	green: Number,
 	meal_list: [MealSchema],
 	weight: Number,
 	total_calories: Number,
-	avg_rank: Number
+	avg_rank: Number,
+	user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
 EntrySchema.methods.serialize = function() {

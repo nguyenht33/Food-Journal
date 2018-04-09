@@ -107,16 +107,12 @@ describe('Users Intergration Test', () => {
 			User.findOne()
 				.then(user => {
 					request(app)
-						.get(`/api/users/${user.id}`)	
-						.expect(200, {
-			 				"__v": 0,
-			        "_id": user.id,
-			        "firstname": "joe",
-			        "lastname": "joejoe",
-			        "password": "password",
-			        "username": "joe",
-						})
-						.end(done);	
+						.get(`/api/users/${user._id}`)	
+						.expect(200)
+						.end((err, res) => {
+							assert(user.id === res.body.id);
+							done();
+						});	
 				});
 		});
 	});

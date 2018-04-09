@@ -224,30 +224,29 @@ describe('Entries Intergration Test', () => {
 		});
 	});
 
-	describe('DELETE /:id/:meal', () => {
-		it ('Should delete meal from entry', (done) => {
-			let meal;
+	// describe.skip('DELETE /:id/:meal', () => {
+	// 	xit ('Should delete meal from entry', (done) => {
+	// 		let meal;
 
-			Entry.findOne()
-				.then(entry => {
-					// meal = entry.meal_list[0].meal;
-					request(app)
-						.delete(`/api/entries/${entry.id}/breakfast`)
-						.expect(204)
-						.end((err, res) => {
-							if (err) {
-								return done(err)
-							}
-							console.log(res.body);
-							Entry.findById(res.body.id)
-								.then(entry => {
-									expect(entry).to.be.null;
-									done();
-								})
-								.catch(err => done(err))
-						});
-				});
-		});
-	});
+	// 		Entry.findOne()
+	// 			.then(entry => {
+	// 				// meal = entry.meal_list[0].meal;
+	// 				request(app)
+	// 					.delete(`/api/entries/${entry.id}/breakfast`)
+	// 					.expect(204)
+	// 					.end((err, res) => {
+	// 						if (err) {
+	// 							return done(err)
+	// 						}
+	// 						Entry.findById(res.body.id)
+	// 							.then(entry => {
+	// 								expect(entry).to.be.null;
+	// 								done();
+	// 							})
+	// 							.catch(err => done(err))
+	// 					});
+	// 			});
+	// 	});
+	// });
 
 });

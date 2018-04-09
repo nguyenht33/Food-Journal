@@ -14,21 +14,21 @@ const { router: entriesRouter} = require('./entries');
 const { PORT, DATABASE_URL } = require('./config');
 
 app.use(express.static('public'));
-app.use(morgan('common'));
+// app.use(morgan('common'));
 app.use('/api/users/', usersRouter);
 app.use('/api/entries/', entriesRouter);
 
 let server;
 
-function runServer() {
+function runServer(DATABASE_URL, port = PORT) {
   return new Promise((resolve, reject) => {
     mongoose.connect(DATABASE_URL, err => {
       if (err) {
         return reject(err);
       }
       server = app
-      	.listen(PORT, () => {
-	        console.log(`Your app is listening on port ${PORT}`);
+      	.listen(port, () => {
+	        console.log(`Your app is listening on port ${port}`);
 	        resolve();
 	      })
 	      .on('error', err => {
@@ -54,7 +54,7 @@ function closeServer() {
 }
 
 if (require.main === module) {
-  runServer().catch(err => console.error(err));
+  runServer(DATABASE_URL).catch(err => console.error(err));
 };
 
 module.exports = { app, runServer, closeServer };

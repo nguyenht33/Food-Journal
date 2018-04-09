@@ -1,9 +1,10 @@
 'use strict';
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
-const UserSchema = mongoose.Schema({
+const UserSchema = Schema({
 	username: {
 		type: String,
 		required: true,
@@ -27,10 +28,7 @@ const UserSchema = mongoose.Schema({
 		minlength: 1,
 		trim: true
 	},
-	entries: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Entry'
-	}]
+	entries: [{ type: Schema.Types.ObjectId, ref: 'Entry' }]
 });
 
 UserSchema.methods.serialize = function() {

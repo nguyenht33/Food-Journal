@@ -34,11 +34,10 @@ describe('Associations', () => {
 			.then(() => done());
 	});
 
-	it.only ('Should save a relation between a user and an entry', (done) => {
+	it ('Should save a relation between a user and an entry', (done) => {
 		User.findOne({username: 'joe'})
 			.populate('entries')
 			.then(user => {
-				console.log(user);
 				assert(user.entries[0].water === 2);
 				done();
 			});
