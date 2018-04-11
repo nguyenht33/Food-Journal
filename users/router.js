@@ -48,7 +48,6 @@ router.get('/:userId', (req, res) => {
 		.findOne({_id: req.params.userId})
 		.populate('entries')
 		.then(user => {
-			console.log('HELLO IM LOGGIN THE USER');
 			res.status(200).json(user.serialize());
 		})
 		.catch(err => res.send(err));
@@ -79,34 +78,16 @@ router.delete('/:userId', (req, res) => {
 		.catch(err => res.status(500).send(err));
 });
 
-//Post entry with user id
-router.post('/entries/:userId', jsonParser, (req, res) => {
-	let { date, water, green, meal_list, weight, total_calories, avg_rank} = req.body;
-
-	const newEntry = new Entry({
-		date: date,
-		water: water,
-		green: green,
-		meal_list: meal_list,
-		weight: weight,
-		total_calories: total_calories,
-		avg_rank: avg_rank,
-		user: req.params.userId
-	});	
-
-	newEntry.save()
-		.then(entry => {
-			return User.findOne({_id: req.params.userId})
-		})
-		.then(user => {
-			user.entries.push(newEntry);
-			return user.save()
-		})
-		.then(user => {
-			res.status(201).send(user.serialize());
+//Get all entries from user
+router.get('/:userId/entries', jsonParser, (req, res) => {
+	Entry
+		.find({ user: req.params.userId })
+		.limit(5)
+		.then(entries => {
+			res.status(200).send({ entries });
 		})
 		.catch(err => res.status(500).send(err));
-});
+})
 
 // /:userId/entries/:entryId
 //Get an entry with date query
@@ -119,20 +100,5 @@ router.post('/entries/:userId', jsonParser, (req, res) => {
 // 		})
 // 		.catch(err => res.status(500).send(err));
 // });
-
-
-//Get all entries from user
-router.get('/:userId/entries', jsonParser, (req, res) => {
-	//find user and return user entries
-	Entry
-		.find({ user: req.params.userId })
-		.limit(5)
-		.then(entries => {
-			res.status(200).send({
-				entries
-			});
-		})
-		.catch(err => res.status(500).send(err));
-})
 
 module.exports = {router};

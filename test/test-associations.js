@@ -26,7 +26,8 @@ describe('Associations', () => {
 			green: 4,
 			weight: 155,
 			total_calories: 1800,
-			avg_rank: 4
+			avg_rank: 4,
+			user: joe
 		});
 
 		joe.entries.push(breakfast);
@@ -56,7 +57,7 @@ describe('Associations', () => {
 		User.findOne({username: 'joe'})
 			.then(user => {
 				request(app)
-					.post(`/api/users/entries/${user.id}`)
+					.post(`/api/entries/${user.id}`)
 					.send(dinner)
 					.expect(201)
 					.end((err, res) => {
@@ -80,7 +81,7 @@ describe('Associations', () => {
 		User.findOne({username: 'joe'})
 			.then(user => {
 				request(app)
-					.get('/api/users/' + user.id + '/entries')
+					.get(`/api/users/${user.id}`)
 					.expect(200)
 					.end((err, res) => {
 						if (err) {
