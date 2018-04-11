@@ -46,8 +46,9 @@ router.post('/', jsonParser, (req, res) => {
 router.get('/:userId', (req, res) => {
 	User
 		.findOne({_id: req.params.userId})
+		.populate('entries')
 		.then(user => {
-			console.log('User find one result', user);
+			console.log('HELLO IM LOGGIN THE USER');
 			res.status(200).json(user.serialize());
 		})
 		.catch(err => res.send(err));
@@ -101,62 +102,35 @@ router.post('/entries/:userId', jsonParser, (req, res) => {
 			user.entries.push(newEntry);
 			return user.save()
 		})
-		// .then(user => {
-		// 	return user.populate('entries')
-		// })
 		.then(user => {
-			console.log(user);
-			res.status(201).send(user)
+			res.status(201).send(user.serialize());
 		})
 		.catch(err => res.status(500).send(err));
 });
 
+// /:userId/entries/:entryId
 //Get an entry with date query
-router.get('/entries/:userId', jsonParser, (req, res) => {
-	Entry
-		.findOne({ user: req.params.userId })
-		.where('date').equals(req.query.date)
-		.then(entry => {
-			console.log(entry)
-			res.status(200).send(entry);
-		})
-		.catch(err => res.status(500).send(err));
-});
+// router.get('/entries/:userId', jsonParser, (req, res) => {
+// 	Entry
+// 		.findOne({ user: req.params.userId })
+// 		.where('date').equals(req.query.date)
+// 		.then(entry => {
+// 			res.status(200).send(entry);
+// 		})
+// 		.catch(err => res.status(500).send(err));
+// });
+
 
 //Get all entries from user
-router.get('/entries/:userId/all', jsonParser, (req, res) => {
-	console.log('THIS IS REQ.PARAMS.USERID', req.params.userId);
+router.get('/:userId/entries', jsonParser, (req, res) => {
+	//find user and return user entries
 	Entry
 		.find({ user: req.params.userId })
 		.limit(5)
-		.then(entry => {
-			res.status(200).send(entry);
-		})
-		.catch(err => res.status(500).send(err));
-})
-
-//Delete an entry
-router.delete('/entries/:userId', jsonParser, (req, res) => {
-	Entry
-		.findOne({ user: req.params.userId })
-		.where('date').equals(req.query.date)
-		.then(entry => entry.remove())
-		.then(entry => {
-			console.log(entry);
-			res.status(204).send('User deleted sucessfully')
-		})
-		.catch(err => res.status(500).send(err));
-})
-
-//Update an entry
-router.put('/entries/:userId', jsonParser, (req, res) => {
-	Entry
-		.findOne({ user: req.params.userId })
-		.where('date').equals(req.query.date)
-		.update(req.body)
-		.then(entry => {
-			console.log(entry)
-			res.status(204).send(entry);
+		.then(entries => {
+			res.status(200).send({
+				entries
+			});
 		})
 		.catch(err => res.status(500).send(err));
 })

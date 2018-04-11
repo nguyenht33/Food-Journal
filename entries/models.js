@@ -9,10 +9,11 @@ const MealSchema = Schema({
 	meal: String,
 	time: Date,
 	food: [
-					{name: String, calories: Number, serving: Number }
+					{name: String, calories: Number, serving: Number, _id: false }
 				],
 	rank: Number,
-	note: String
+	note: String,
+	_id: false
 })
 
 const EntrySchema = Schema({
@@ -33,7 +34,8 @@ EntrySchema.methods.serialize = function() {
 		green: this.green,
 		meal_list: this.meal_list,
 		total_calories: this.total_calories,
-		avg_rank: this.avg_rank
+		avg_rank: this.avg_rank,
+		user: this.user
 	}
 };
 
