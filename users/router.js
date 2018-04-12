@@ -78,27 +78,4 @@ router.delete('/:userId', (req, res) => {
 		.catch(err => res.status(500).send(err));
 });
 
-//Get all entries from user
-router.get('/:userId/entries', jsonParser, (req, res) => {
-	Entry
-		.find({ user: req.params.userId })
-		.limit(5)
-		.then(entries => {
-			res.status(200).send({ entries });
-		})
-		.catch(err => res.status(500).send(err));
-})
-
-// /:userId/entries/:entryId
-//Get an entry with date query
-// router.get('/entries/:userId', jsonParser, (req, res) => {
-// 	Entry
-// 		.findOne({ user: req.params.userId })
-// 		.where('date').equals(req.query.date)
-// 		.then(entry => {
-// 			res.status(200).send(entry);
-// 		})
-// 		.catch(err => res.status(500).send(err));
-// });
-
 module.exports = {router};

@@ -117,7 +117,7 @@ describe('Users Intergration Test', () => {
 		});
 	});
 
-	describe('PUT /api/users', () => {
+	describe('PUT /api/users/:userId', () => {
 		it ('Should update user by id', (done) => {
 			const updatedUser = {
 				username: 'john',
@@ -135,20 +135,19 @@ describe('Users Intergration Test', () => {
 							if (err) {
 								return done(err);
 							}
-							done();
-							// console.log('HERE IT IS', res);
-							// User.findById(res.body.id)
-							// 	.then(user => {
-							// 		expect(user.username).to.equal('john');
-							// 		done();
-							// 	})
-							// 	.catch(err => done(err));
+
+							User.findById(user.id)
+								.then(user => {
+									expect(user.username).to.equal('john');
+									done();
+								})
+								.catch(err => done(err));
 						});
 				});
 		});
 	});
 
-	describe('DELETE /api/users', () => {
+	describe('DELETE /api/users/userId', () => {
 		it('Should delete user by id', (done) => {
 			let user;
 

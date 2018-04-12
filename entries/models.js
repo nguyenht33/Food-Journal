@@ -12,9 +12,8 @@ const MealSchema = Schema({
 					{name: String, calories: Number, serving: Number, _id: false }
 				],
 	rank: Number,
-	note: String,
-	_id: false
-})
+	note: String
+});
 
 const EntrySchema = Schema({
 	date: Date,

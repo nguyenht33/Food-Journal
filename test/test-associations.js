@@ -65,8 +65,6 @@ describe('Associations', () => {
 							return done(err);
 						}
 
-						assert(user.id === res.body.id);
-
 						Entry.find({user: res.body.id})
 							.then(entry => {
 								expect(entry[0].user.toString()).to.equal(res.body.id);
@@ -87,8 +85,13 @@ describe('Associations', () => {
 						if (err) {
 							return done(err)
 						}
-						console.log(res.body, user.id);
-						done();
+
+						Entry.findOne({user: res.body.id})
+							.then(entry => {
+								expect(entry.total_calories).to.equal(1800);
+								done();
+							})
+							.catch(err => done(err));						
 					});
 			});
 	});
