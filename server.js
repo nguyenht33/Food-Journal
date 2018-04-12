@@ -8,15 +8,25 @@ mongoose.Promise = global.Promise;
 
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const passport = require('passport');
 
 const { router: usersRouter } = require('./users');
 const { router: entriesRouter} = require('./entries');
+const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
+
 const { PORT, DATABASE_URL } = require('./config');
 
 app.use(express.static('public'));
 // app.use(morgan('common'));
+
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
 app.use('/api/users/', usersRouter);
 app.use('/api/entries/', entriesRouter);
+app.use('/api/auth/', authRouter);
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 let server;
 
