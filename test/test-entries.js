@@ -13,9 +13,7 @@ describe('Entries Unit Test', () => {
 	beforeEach(() => {
 		testEntry = new Entry({
 			date: 'March 20, 2018',
-			water: '2',
-			green: '3',
-			weight: '159',
+			weight: '159'
 		});
 	});
 
@@ -52,8 +50,6 @@ describe('Entries Intergration Test', () => {
 
 	const testEntry = {
 		date: "2018-04-01T04:00:00.000Z",
-		water: "3",
-		green: "1",
 		weight: "140",
 		total_calories: "2400",
 		avg_rank: "4",
@@ -96,8 +92,6 @@ describe('Entries Intergration Test', () => {
 	describe('PUT /api/entries/:entryId', () => {
 		const updatedEntry = {
 			date: "2018-04-01T04:00:00.000Z",
-			water: "8",
-			green: "6",
 			weight: "140",
 			total_calories: "4000",
 			avg_rank: "5",

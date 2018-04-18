@@ -17,7 +17,7 @@ const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
 const { PORT, DATABASE_URL } = require('./config');
 
 app.use(express.static('public'));
-// app.use(morgan('common'));
+app.use(morgan('common'));
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);

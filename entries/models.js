@@ -8,6 +8,7 @@ mongoose.Promise = global.Promise;
 const MealSchema = Schema({
 	meal: String,
 	time: Date,
+	image: String,
 	food: [
 					{name: String, calories: Number, serving: Number, _id: false }
 				],
@@ -17,8 +18,6 @@ const MealSchema = Schema({
 
 const EntrySchema = Schema({
 	date: Date,
-	water: Number,
-	green: Number,
 	meal_list: [MealSchema],
 	weight: Number,
 	total_calories: Number,
@@ -30,7 +29,6 @@ EntrySchema.methods.serialize = function() {
 	return {
 		id: this._id,
 		date: this.date,
-		green: this.green,
 		meal_list: this.meal_list,
 		total_calories: this.total_calories,
 		avg_rank: this.avg_rank,

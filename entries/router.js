@@ -8,13 +8,11 @@ const { Entry } = require('./models');
 const { User } = require('../users/models');
 
 // Post an entry to user account
-router.post('/:userId', jsonParser, (req, res) => {
-	let { date, water, green, meal_list, weight, total_calories, avg_rank} = req.body;
+router.post('/new/:userId', jsonParser, (req, res) => {
+	let { date, meal_list, weight, total_calories, avg_rank} = req.body;
 
 	const newEntry = new Entry({
 		date: date,
-		water: water,
-		green: green,
 		meal_list: meal_list,
 		weight: weight,
 		total_calories: total_calories,
@@ -53,16 +51,21 @@ router.get('/:userId', jsonParser, (req, res) => {
 		});
 });
 
-// Get an entry with date query
-// router.get('/:userId', jsonParser, (req, res) => {
-// 	Entry
-// 		.findOne({ user: req.params.userId })
-// 		.where('date').equals(req.query.date)
-// 		.then(entry => {
-// 			res.status(200).send(entry);
-// 		})
-// 		.catch(err => res.status(500).send(err));
-// });
+// Get all entries by date query
+router.get('/date/:userId', jsonParser, (req, res) => {
+	Entry
+		.find({ user: req.params.userId, 
+						date: { $gte: req.query.startDate, $lte: req.query.endDate } 
+		})
+		.then(entries => {
+			console.log(entries);
+			res.status(200).send({ entries });
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error' });
+		});
+});
 
 // Get an entry by id
 // router.get('/:entryId', jsonParser, (req, res) => {
@@ -103,12 +106,12 @@ router.delete('/:entryId', jsonParser, (req, res) => {
 
 // MEALS
 router.post('/:entryId/meals', jsonParser, (req, res) => {
-	let {meal, time, food, rank, note} = req.body;
+	let { meal, time, image, food, rank, note } = req.body;
 
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
-			entry.meal_list.push({ meal, time, food, rank, note });
+			entry.meal_list.push({ meal, time, image, food, rank, note });
 			return entry.save();
 		})
 		.then(entry => res.status(201).json({ entry }))
@@ -118,27 +121,9 @@ router.post('/:entryId/meals', jsonParser, (req, res) => {
 		});
 });
 
-// Update all meals
-// router.put('/:entryId/meals', jsonParser, (req, res) => {
-// 	const { meal, time, food, rank, note } = req.body;
-
-// 	Entry
-// 		.findByIdAndUpdate(
-// 			{'_id': req.params.entryId, 'meal_list': req.body },
-// 			{'$set': {'meal_list': [{ meal: meal, food: food, rank: rank, note: note }] }
-// 		})
-// 		.then(entry => {
-// 			res.status(204).end();
-// 		})
-// 		.catch(err => {
-// 			console.error(err);
-// 			res.status(500).json({ message: 'Internal server error' });
-// 		});
-// });
-
 // Update a meal entry
 router.put('/:entryId/meals/:mealId', jsonParser, (req, res) => {
-	const { meal, time, food, rank, note } = req.body;
+	const { meal, time, image, food, rank, note } = req.body;
 
 	Entry
 		.findOneAndUpdate(
@@ -146,6 +131,7 @@ router.put('/:entryId/meals/:mealId', jsonParser, (req, res) => {
 			{'$set': {
 								'meal_list.$.meal': meal, 
 								'meal_list.$.time': time, 
+								'meal_list.$.image': image,
 								'meal_list.$.food': food,
 								'meal_list.$.rank': rank,
 								'meal_list.$.note': note

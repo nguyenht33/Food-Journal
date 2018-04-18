@@ -58,8 +58,7 @@ UserSchema.methods.serialize = function() {
 // });
 
 UserSchema.methods.validatePassword = function(password) {
-	const user = this;
-	return bcrypt.compare(password, user.password);
+	return bcrypt.compare(password, this.password);
 };
 
 UserSchema.statics.hashPassword = function(password) {

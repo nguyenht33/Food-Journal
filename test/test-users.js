@@ -110,6 +110,9 @@ describe('Users Intergration Test', () => {
 						.get(`/api/users/${user._id}`)	
 						.expect(200)
 						.end((err, res) => {
+							if(err) {
+								return done(err)
+							}
 							assert(user.id === res.body.id);
 							done();
 						});	

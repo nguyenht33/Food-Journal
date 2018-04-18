@@ -22,8 +22,6 @@ describe('Associations', () => {
 
 		breakfast = new Entry({
 			date: '2018-04-10 19:24:04.732Z',
-			water: 2,
-			green: 4,
 			weight: 155,
 			total_calories: 1800,
 			avg_rank: 4,
@@ -39,7 +37,7 @@ describe('Associations', () => {
 		User.findOne({username: 'joe'})
 			.populate('entries')
 			.then(user => {
-				assert(user.entries[0].water === 2);
+				assert(user.entries[0].weight === 155);
 				done();
 			});
 	});
@@ -47,8 +45,6 @@ describe('Associations', () => {
 	it ('Should POST entries to a user account', (done) => {
 		const dinner = new Entry({
 			date: Date.now(),
-			water: 7,
-			green: 8,
 			weight: 140,
 			total_calories: 3000,
 			avg_rank: 4,
