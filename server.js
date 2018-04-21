@@ -13,10 +13,11 @@ const passport = require('passport');
 const { router: usersRouter } = require('./users');
 const { router: entriesRouter} = require('./entries');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
-
 const { PORT, DATABASE_URL } = require('./config');
 
-app.use(express.static('public'));
+app.set('view engine', 'ejs');
+
+// app.use(express.static('public'));
 app.use(morgan('common'));
 
 passport.use(localStrategy);
@@ -62,6 +63,10 @@ function closeServer() {
     });
   });
 }
+
+app.get('/', (req, res) => {
+  res.render('home');
+});
 
 if (require.main === module) {
   runServer(DATABASE_URL).catch(err => console.error(err));

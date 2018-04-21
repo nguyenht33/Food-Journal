@@ -43,7 +43,7 @@ router.get('/:userId', jsonParser, (req, res) => {
 		.find({ user: req.params.userId })
 		.limit(7)
 		.then(entries => {
-			res.status(200).send({ entries });
+			res.status(200).render('testEntry', { entries: entries });
 		})
 		.catch(err => {
 			console.error(err);
