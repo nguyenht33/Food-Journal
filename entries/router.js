@@ -1,15 +1,16 @@
 'use strict';
-const express = require('express');
-const router = express.Router();
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
-
-const { Entry } = require('./models');
-const { User } = require('../users/models');
+const express = require('express'),
+			router = express.Router(),
+			bodyParser = require('body-parser'),
+			jsonParser = bodyParser.json(),
+			passport = require('passport'),
+			jwtAuth = passport.authenticate('jwt', { session: false }),
+			{ User } = require('./models'),
+			{ Entry } = require('../entries/models');
 
 // Post an entry to user account
-router.post('/new/:userId', jsonParser, (req, res) => {
-	let { date, meal_list, weight, total_calories, avg_rank} = req.body;
+router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
+	let { date, meal_list, weight, total_calories, avg_rank } = req.body;
 
 	const newEntry = new Entry({
 		date: date,
@@ -38,7 +39,7 @@ router.post('/new/:userId', jsonParser, (req, res) => {
 });
 
 // Get all entries from user account
-router.get('/:userId', jsonParser, (req, res) => {
+router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.find({ user: req.params.userId })
 		.limit(7)
@@ -52,7 +53,7 @@ router.get('/:userId', jsonParser, (req, res) => {
 });
 
 // Get all entries by date query
-router.get('/date/:userId', jsonParser, (req, res) => {
+router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.find({ user: req.params.userId, 
 						date: { $gte: req.query.startDate, $lte: req.query.endDate } 
@@ -80,7 +81,7 @@ router.get('/date/:userId', jsonParser, (req, res) => {
 // 		});
 // });
 
-router.put('/:entryId', jsonParser, (req, res) => {
+router.put('/:entryId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.findOneAndUpdate({_id: req.params.entryId}, req.body)
 		.then(entry => res.status(204).send('Entry updated'))
@@ -90,7 +91,7 @@ router.put('/:entryId', jsonParser, (req, res) => {
 		});
 });
 
-router.delete('/:entryId', jsonParser, (req, res) => {
+router.delete('/:entryId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
@@ -105,7 +106,7 @@ router.delete('/:entryId', jsonParser, (req, res) => {
 });
 
 // MEALS
-router.post('/:entryId/meals', jsonParser, (req, res) => {
+router.post('/:entryId/meals', jsonParser, jwtAuth, (req, res) => {
 	let { meal, time, image, food, rank, note } = req.body;
 
 	Entry
@@ -122,7 +123,7 @@ router.post('/:entryId/meals', jsonParser, (req, res) => {
 });
 
 // Update a meal entry
-router.put('/:entryId/meals/:mealId', jsonParser, (req, res) => {
+router.put('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
 	const { meal, time, image, food, rank, note } = req.body;
 
 	Entry
@@ -146,7 +147,7 @@ router.put('/:entryId/meals/:mealId', jsonParser, (req, res) => {
 		});
 });
 
-router.delete('/:entryId/meals/:mealId', jsonParser, (req, res) => {
+router.delete('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.findByIdAndUpdate(
 			{'_id': req.params.entryId}, 

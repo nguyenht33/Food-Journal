@@ -1,0 +1,17 @@
+<% include partials/header %>
+
+<h1>Login</h1>
+
+<form id='js-login-form' action='api/auth/login' method='post'>
+	<div>
+		<label for='username'>username</label>
+		<input type='text' name='username' id='login-user' placeholder='username'>
+	</div>	
+	<div>
+		<label for='password'>password</label>
+		<input type='password' name='password' id='login-pwd' placeholder='password'>
+	</div>
+	<button type='submit'>Login</button>
+</form>
+
+<% include partials/footer %>

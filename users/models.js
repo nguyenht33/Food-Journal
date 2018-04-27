@@ -12,6 +12,9 @@ const UserSchema = Schema({
 		trim: true,
 		unique: true
 	},
+	email: {
+		type: String
+	},
 	password: {
 		type: String,
 		required: true,
@@ -35,6 +38,7 @@ UserSchema.methods.serialize = function() {
 	return {
 		id: this._id,
 		username: this.username || '',
+		email: this.email || '',
 		firstname: this.firstname || '',
 		lastname: this.lastname || '',
 		entries: this.entries || ''
