@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
 const morgan = require('morgan');
 const passport = require('passport');
 
@@ -86,9 +87,10 @@ app.get('/login', (req, res) => {
   res.render('login');
 });
 
-// app.get('/dashboard', (req, res) => {
-//   res.render('dashboard');
-// })
+app.post('/dashboard', jsonParser, (req, res) => {
+  console.log('dashboard req.body', req.body);
+  res.render('dashboard', {user: req.body});
+});
 
 
 if (require.main === module) {

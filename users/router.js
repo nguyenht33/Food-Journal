@@ -46,14 +46,13 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
-router.get('/:userId', jwtAuth, (req, res) => {
-	console.log('made request');
+router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
+	console.log('getting user data');
 	User
 		.findOne({_id: req.params.userId})
 		.populate('entries')
 		.then(user => {
-			console.log('response');
-			res.status(200).render('dashboard', {user});
+			res.status(200).send(user.serialize())
 		})
 		.catch(err => res.send(err));
 });
