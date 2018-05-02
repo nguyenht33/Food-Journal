@@ -1,3 +1,4 @@
+// get login
 function makeLoginRequest(username, password) {
 	$.ajax({
 		url: 'api/auth/login',
@@ -19,48 +20,11 @@ function tokenError(err) {
 
 function tokenSuccess(res) {
 	const authToken = res.authToken,
-				userId = res.userId;
+				user = res.user;
 	localStorage.setItem('authToken', JSON.stringify(authToken));
+	localStorage.setItem('user', JSON.stringify(user));
+	window.location = '/dashboard';
 
-	getUsersData(authToken, userId);
-}
-
-function getUsersData(authToken, userId) {
-	$.ajax({
-		url: `api/users/${userId}`,
-		type: 'GET',
-		headers: {
-        'Authorization': `Bearer ${authToken}`,
-    },
-		success: function(data) {
-			console.log(data);
-			// window.location = '/dashboard';
-			displayUserDashboard(data);
-		},
-		error: function(err) {
-			return console.log(err);
-		}
-	});
-}
-
-function displayUserDashboard(data) {
-	let { id, username, firstname, lastname } = data;
-	$.ajax({
-		url: 'dashboard',
-		type: 'POST',
-		contentType: 'application/json',
-		data: JSON.stringify({
-			id: id,
-			username: username,
-			firstname: firstname,
-			lastname: lastname
-		}),
-		dataType: 'json',
-		success: function(data) {
-			console.log(data);
-			window.location = '/dashboard';
-		}
-	})
 }
 
 function handleLoginSubmit() {
@@ -77,7 +41,18 @@ function handleLoginSubmit() {
 	});
 }
 
-//////////////////////
+// get dashboard
+// function displayUserDashboard() {
+
+
+// 	const user = localStorage.getItem('user');
+// 	const entries = user.entries;
+// 	const currentDate = Date.now();
+
+// 	let currentEntry = entries.find(entry => entry.date === currentDate);
+// 	console.log(currentEntry);
+// 	alert('this is working');
+// }
 
 function makeSignupRequest(username, email, password, firstname, lastname) {
 	const data = JSON.stringify({
@@ -94,7 +69,7 @@ function makeSignupRequest(username, email, password, firstname, lastname) {
 		data: data,
 		dataType: 'json',
 		success: function(res) {
-			console.log(res);
+			makeLoginRequest(username, password);
 		},
 		error: function(err) {
 			console.log(err.status);

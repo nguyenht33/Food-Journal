@@ -8,7 +8,6 @@ mongoose.Promise = global.Promise;
 const MealSchema = Schema({
 	meal: String,
 	time: Date,
-	image: String,
 	food: [
 					{name: String, calories: Number, serving: Number, _id: false }
 				],

@@ -3,9 +3,9 @@ const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-
 const config = require('../config');
 const router = express.Router();
+const { User } = require('../users/models');
 
 const createAuthToken = function(user) {
   return jwt.sign({user}, config.JWT_SECRET, {
@@ -22,7 +22,14 @@ router.use(bodyParser.json());
 router.post('/login', localAuth, (req, res) => {
   const authToken = createAuthToken(req.user.serialize());
   const userId = req.user._id;
-  res.json({authToken, userId});
+
+  User
+    .findOne({_id: userId})
+    .populate('entries')
+    .then(user => {
+      res.status(200).json({ user: user, authToken: authToken })
+    })
+    .catch(err => res.send(err));
 });
 
 const jwtAuth = passport.authenticate('jwt', {session: false});

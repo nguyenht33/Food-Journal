@@ -13,17 +13,28 @@ router.post('/', jsonParser, (req, res) => {
 	let {username, email, password, firstname, lastname} = req.body;
 
 	User
-		.find({username})
+		.find({ $or: [{ username: username }, { email: email }] })
 		.then(users => {
-			if(users.length) {
+			console.log(users);
+			if (users.length === 0) {
+				return User.hashPassword(password);
+			}
+			else if (users[0].username === username) {
 				return Promise.reject({
 					code: 422,
 					reason: 'ValidationError', 
 					message: 'Username already taken',
 					location: 'username'
 				});
-			};
-			return User.hashPassword(password);
+			}
+			else if (users[0].email === email) {
+				return Promise.reject({
+					code: 422,
+					reason: 'ValidationError', 
+					message: 'Email already exists',
+					location: 'email'
+				});
+			};		
 		})
 		.then(hash => {
 			return User.create({
@@ -35,7 +46,7 @@ router.post('/', jsonParser, (req, res) => {
 			});			
 		})
 		.then(user => {
-			return res.status(201).render('dashboard', {user: user.serialize()});
+			return res.status(201).send(user.serialize());
 		})
 		.catch(err => {
 			console.log(err);
@@ -46,16 +57,16 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
-router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
-	console.log('getting user data');
-	User
-		.findOne({_id: req.params.userId})
-		.populate('entries')
-		.then(user => {
-			res.status(200).send(user.serialize())
-		})
-		.catch(err => res.send(err));
-});
+// router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
+// 	console.log('getting user data');
+// 	User
+// 		.findOne({_id: req.params.userId})
+// 		.populate('entries')
+// 		.then(user => {
+// 			res.status(200).send(user.serialize());
+// 		})
+// 		.catch(err => res.send(err));
+// });
 
 router.put('/:userId', jsonParser, jwtAuth, (req, res) => {
 	User

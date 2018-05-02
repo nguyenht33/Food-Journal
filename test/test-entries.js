@@ -10,7 +10,7 @@ const { User } = require('../users');
 
 describe('Entries Unit Test', () => {
 	let testEntry;
-	beforeEach(() => {
+	before(() => {
 		testEntry = new Entry({
 			date: 'March 20, 2018',
 			weight: '159'
@@ -37,7 +37,7 @@ describe('Entries Unit Test', () => {
 						done();
 					})
 					.catch(err => {
-						return Promise.reject(err)
+						console.log(err);
 					})
 			})
 			.catch(err => {
@@ -47,6 +47,35 @@ describe('Entries Unit Test', () => {
 });
 
 describe('Entries Intergration Test', () => {
+	let authToken;
+	const username = 'joe',
+				email = 'joe@schmoe.com',
+				password = 'password',
+				firstname = 'joe',
+				lastname = 'doe';
+
+	beforeEach((done) => {
+		User.hashPassword(password)
+			.then(password => {
+				User.create({
+					username,
+					email,
+					password,
+					firstname,
+					lastname
+				});
+			})
+			.then(user => {
+				request(app)
+					.post('/api/auth/login')
+					.send({ username, password })
+					.end((err, res) => {
+						authToken = res.body.authToken;
+						done();
+					});
+			})
+			.catch(err => console.log(err));
+	});
 
 	const testEntry = {
 		date: "2018-04-01T04:00:00.000Z",
@@ -60,34 +89,51 @@ describe('Entries Intergration Test', () => {
 			rank: "3",
 			note: "kinda meh"
 		}] 
-	}
+	};
 
 	beforeEach((done) => {
 		Entry.remove({})
-		.then(() => {
-			return Entry.insertMany(testEntry);
-		})
-		.then(() => done())
-		.catch(err => console.log(err));
-	});
+			.then(() => {
+				return Entry.insertMany(testEntry);
+			})
+			.then(() => done())
+			.catch(err => console.log(err));
+	})
 
-	// describe('GET /api/entries/:entryId', () => {
-	// 	it ('Should be able to get an entry by entry id', (done) => {
-	// 		Entry.findOne()
-	// 			.then(entry => {
-	// 				request(app)
-	// 					.get(`/api/entries/${entry.id}`)
-	// 					.expect(200)
-	// 					.end((err, res) => {
-	// 						if (err) {
-	// 							return done(err);
-	// 						}
-	// 						console.log(res.body);
-	// 						done();
-	// 					});
-	// 			});
-	// 	});
-	// });
+
+	describe('POST /api/entries/new/:userId', () => {
+		it ('Should POST entries to a user account', (done) => {
+			const dinner = new Entry({
+				date: Date.now(),
+				weight: 140,
+				total_calories: 3000,
+				avg_rank: 4,
+			});
+
+		User.findOne()
+			.then(user => {
+				console.log(user.id);
+				request(app)
+					.post(`/api/entries/new/${user.id}`) 
+					.send(dinner)
+					.set('Authorization', 'Bearer ' + authToken)
+					.expect(201)
+					.end((err, res) => {
+						if (err) {
+							return done(err);
+						}
+
+						Entry.find({user: res.body.id})
+							.then(entry => {
+								expect(entry[0].user.toString()).to.equal(res.body.id);
+								done();
+							})
+							.catch(err => done(err))
+					});
+			});
+	});
+	})
+
 
 	describe('PUT /api/entries/:entryId', () => {
 		const updatedEntry = {
@@ -109,6 +155,7 @@ describe('Entries Intergration Test', () => {
 				.then(entry => {
 					request(app)
 						.put(`/api/entries/${entry.id}`)
+						.set('Authorization', 'Bearer ' + authToken)
 						.send(updatedEntry)
 						.expect(204)
 						.end((err, res) => {
@@ -133,6 +180,7 @@ describe('Entries Intergration Test', () => {
 				.then(entry => {
 					request(app)
 						.delete(`/api/entries/${entry.id}`)
+						.set('Authorization', 'Bearer ' + authToken)
 						.expect(204)
 						.end((err, res) => {
 							if (err) {
@@ -146,7 +194,7 @@ describe('Entries Intergration Test', () => {
 								})
 								.catch(err => done(err));
 						});
-				});
+				}); 
 		});
 	});
 
@@ -165,6 +213,7 @@ describe('Entries Intergration Test', () => {
 				.then(entry => {
 					request(app)
 						.post(`/api/entries/${entry.id}/meals`)
+						.set('Authorization', 'Bearer ' + authToken)
 						.send(lunch)
 						.expect(201)
 						.end((err, res) => {
@@ -200,6 +249,7 @@ describe('Entries Intergration Test', () => {
 					meal_id = entry.meal_list[0]._id;
 					request(app)
 						.put(`/api/entries/${entry.id}/meals/${meal_id}`)
+						.set('Authorization', 'Bearer ' + authToken)
 						.send(snack_1)
 						.expect(204)
 						.end((err, res) => {
@@ -227,6 +277,7 @@ describe('Entries Intergration Test', () => {
 					meal_id = entry.meal_list[0]._id;
 					request(app)
 						.delete(`/api/entries/${entry.id}/meals/${meal_id}`)
+						.set('Authorization', 'Bearer ' + authToken)
 						.expect(204)
 						.end((err, res) => {
 							if (err) {

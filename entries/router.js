@@ -44,7 +44,7 @@ router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
 		.find({ user: req.params.userId })
 		.limit(7)
 		.then(entries => {
-			res.status(200).render('testEntry', { entries: entries });
+			res.status(200).send(entries);
 		})
 		.catch(err => {
 			console.error(err);

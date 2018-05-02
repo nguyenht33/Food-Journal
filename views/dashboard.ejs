@@ -1,6 +1,13 @@
 <% include partials/header %>
+<main>
+	<div>
+		<h2><a href="/entries">Today's Entry</a></h2>
+	</div>
+	<div>
+		<h2><a href="/previous">Previous Entries</a></h2>
+	</div>
+</main>
 
-<h1>THIS IS DASHBOARD</h1>
-<h2><%= user.firstname %></h2>
-
+<% include partials/commonScripts %>
+<% include partials/dashboardFooter %>
 <% include partials/footer %>

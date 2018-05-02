@@ -11,6 +11,7 @@ const jsonParser = bodyParser.json();
 const morgan = require('morgan');
 const passport = require('passport');
 
+const { router: appRouter } = require('./routes');
 const { router: usersRouter } = require('./users');
 const { router: entriesRouter} = require('./entries');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
@@ -34,6 +35,7 @@ app.use(function (req, res, next) {
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
+app.use('/', appRouter);
 app.use('/api/users/', usersRouter);
 app.use('/api/entries/', entriesRouter);
 app.use('/api/auth/', authRouter);
@@ -75,22 +77,25 @@ function closeServer() {
   });
 }
 
-app.get('/', (req, res) => {
-  res.render('home');
-});
+// app.get('/', (req, res) => {
+//   res.render('home');
+// });
 
-app.get('/signup', (req, res) => {
-  res.render('signup');
-})
+// app.get('/signup', (req, res) => {
+//   res.render('signup');
+// })
 
-app.get('/login', (req, res) => {
-  res.render('login');
-});
+// app.get('/login', (req, res) => {
+//   res.render('login');
+// });
 
-app.post('/dashboard', jsonParser, (req, res) => {
-  console.log('dashboard req.body', req.body);
-  res.render('dashboard', {user: req.body});
-});
+// app.get('/dashboard', (req, res) => {
+//   res.render('dashboard');
+// })
+
+// app.get('/entries', (req, res) => {
+//   res.render('entry');
+// })
 
 
 if (require.main === module) {
