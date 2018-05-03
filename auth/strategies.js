@@ -5,6 +5,11 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { User } = require('../users/models');
 const { JWT_SECRET } = require('../config');
 
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const router = express.Router();
+router.use(cookieParser())
+
 const localStrategy = new LocalStrategy((username, password, callback) => {
   let user;
   User.findOne({ username: username })
@@ -35,15 +40,26 @@ const localStrategy = new LocalStrategy((username, password, callback) => {
     });
 });
 
-const jwtStrategy = new JwtStrategy(
+const cookieExtractor = function(req) {
+    let token = null;
+    if (req && req.cookies)
+    {
+      token = req.cookies['authToken'];
+    }
+    return token;
+};
+
+const jwtStrategy = new JwtStrategy(   
   {
     secretOrKey: JWT_SECRET,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
+    jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
     algorithms: ['HS256']
   },
   (payload, done) => {
+    console.log(payload);
     done(null, payload.user);
   }
 );
+
 
 module.exports = { localStrategy, jwtStrategy };

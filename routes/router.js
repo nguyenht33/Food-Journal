@@ -28,4 +28,8 @@ router.get('/entries', (req, res) => {
   res.render('entry');
 })
 
+router.get('/test', (req, res) => {
+	console.log(req.cookie(authToken));
+})
+
 module.exports = { router };
