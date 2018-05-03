@@ -41,19 +41,7 @@ function handleLoginSubmit() {
 	});
 }
 
-// get dashboard
-// function displayUserDashboard() {
-
-
-// 	const user = localStorage.getItem('user');
-// 	const entries = user.entries;
-// 	const currentDate = Date.now();
-
-// 	let currentEntry = entries.find(entry => entry.date === currentDate);
-// 	console.log(currentEntry);
-// 	alert('this is working');
-// }
-
+// Sign Up
 function makeSignupRequest(username, email, password, firstname, lastname) {
 	const data = JSON.stringify({
 							username: username,

@@ -5,12 +5,13 @@ const express = require('express'),
 			jsonParser = bodyParser.json(),
 			passport = require('passport'),
 			jwtAuth = passport.authenticate('jwt', { session: false }),
-			{ User } = require('./models'),
-			{ Entry } = require('../entries/models');
+			{ User } = require('../users/models'),
+			{ Entry } = require('./models');
 
 // Post an entry to user account
 router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 	let { date, meal_list, weight, total_calories, avg_rank } = req.body;
+	let entry;
 
 	const newEntry = new Entry({
 		date: date,
@@ -22,15 +23,16 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 	});	
 
 	newEntry.save()
-		.then(entry => {
-			return User.findOne({_id: req.params.userId})
+		.then(_entry => {
+			entry = _entry;
+			return User.findOne({'_id': req.params.userId})
 		})
 		.then(user => {
 			user.entries.push(newEntry);
 			return user.save()
 		})
 		.then(user => {
-			res.status(201).send(user.serialize());
+			res.status(201).send(entry);
 		})
 		.catch(err => {
 			console.error(err);
@@ -42,7 +44,7 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.find({ user: req.params.userId })
-		.limit(7)
+		.limit(40)
 		.then(entries => {
 			res.status(200).send(entries);
 		})
@@ -54,12 +56,12 @@ router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
 
 // Get all entries by date query
 router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
+	console.log(req.query.startDate, req.query.endDate);
 	Entry
 		.find({ user: req.params.userId, 
 						date: { $gte: req.query.startDate, $lte: req.query.endDate } 
 		})
 		.then(entries => {
-			console.log(entries);
 			res.status(200).send({ entries });
 		})
 		.catch(err => {
@@ -69,17 +71,17 @@ router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
 });
 
 // Get an entry by id
-// router.get('/:entryId', jsonParser, (req, res) => {
-// 	Entry
-// 		.findOne({_id: req.params.entryId})
-// 		.then(entry => {
-// 			res.status(200).json(entry.serialize());
-// 		})
-// 		.catch(err => {
-// 			console.error(err);
-// 			res.status(500).json({ message: 'Internal server error'});
-// 		});
-// });
+router.get('/:entryId', jsonParser, (req, res) => {
+	Entry
+		.findOne({_id: req.params.entryId})
+		.then(entry => {
+			res.status(200).json(entry.serialize());
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error'});
+		});
+});
 
 router.put('/:entryId', jsonParser, jwtAuth, (req, res) => {
 	Entry
