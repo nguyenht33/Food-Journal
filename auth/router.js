@@ -6,8 +6,12 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 const router = express.Router();
 const { User } = require('../users/models');
-const cookieParser = require('cookie-parser')
-router.use(cookieParser())
+const cookieParser = require('cookie-parser');
+router.use(cookieParser());
+router.use(bodyParser.urlencoded({
+  extended: true
+}));
+// router.use(bodyParser.json());
 
 const createAuthToken = function(user) {
   return jwt.sign({user}, config.JWT_SECRET, {
@@ -18,13 +22,14 @@ const createAuthToken = function(user) {
 };
 
 const localAuth = passport.authenticate('local', {session: false});
-router.use(bodyParser.json());
 
 // The user provides a username and password to login
 router.post('/login', localAuth, (req, res) => {
   const authToken = createAuthToken(req.user.serialize());
+  const userId = req.user._id;
   res.cookie('authToken', authToken);
-  res.send('hello');  
+  res.cookie('userId', userId);
+  res.redirect('/dashboard'); 
 
   // User
   //   .findOne({_id: userId})

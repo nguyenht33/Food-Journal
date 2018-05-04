@@ -6,23 +6,27 @@ const express = require('express'),
 			passport = require('passport'),
 			jwtAuth = passport.authenticate('jwt', { session: false }),
 			{ User } = require('../users/models'),
-			{ Entry } = require('../entries/models');
+			{ Entry } = require('../entries/models'),
+			cookieParser = require('cookie-parser'),
+			path = require('path');
+
+router.use(cookieParser());
 
 router.get('/', (req, res) => {
-  res.render('home');
+  res.sendFile('home.html', { root: path.join(__dirname, '../public/html') });
 });
 
 router.get('/signup', (req, res) => {
-  res.render('signup');
-})
-
-router.get('/login', (req, res) => {
-  res.render('login');
+  res.sendFile('signup.html', { root: path.join(__dirname, '../public/html') });
 });
 
-router.get('/dashboard', (req, res) => {
-  res.render('dashboard');
-})
+router.get('/login', (req, res) => {
+  res.sendFile('login.html', { root: path.join(__dirname, '../public/html') });
+});
+
+router.get('/dashboard', jwtAuth, (req, res) => {
+	res.sendFile('dashboard.html', { root: path.join(__dirname, '../public/html') });
+});
 
 router.get('/entries', (req, res) => {
   res.render('entry');
