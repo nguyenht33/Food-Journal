@@ -1,80 +1,114 @@
-// function getUsersEntries() {
-// 	const user = JSON.parse(localStorage.getItem('user')),
-// 				authToken = JSON.parse(localStorage.getItem('authToken'));
-
-// 	$.ajax({
-// 		url: `/api/entries/${user._id}`,
-// 		type: 'GET',
-// 		contentType: 'application/json',
-// 		headers: {'Authorization': `Bearer ${authToken}`},
-// 		dataType: 'json',
-// 		success: storeUsersEntries,
-// 		error: function(err) {
-// 			console.log(err);
-// 		}
-// 	});
-// }
-
-// function storeUsersEntries(res) {
-// 	localStorage.setItem('entries', JSON.stringify(res));
-// 	console.log('got data');
-// }
-
 // function getTodayEntry(entryId) {
-
-// 		window.location = '/entry';
-
-
-// 	const user = JSON.parse(localStorage.getItem('user')),
-// 				authToken = JSON.parse(localStorage.getItem('authToken'));
-
 // 	$.ajax({
 // 		url: `/api/entries/${entryId}/`,
 // 		type: 'GET',
 // 		contentType: 'application/json',
-// 		headers: {'Authorization': `Bearer ${authToken}`},
 // 		dataType: 'json',
-// 		success: function (res) {
-// 			console.log(res);
-// 		},
+// 		success: displayEntry,
 // 		error: function(err) {
 // 			console.log(err);
 // 		}
 // 	});
 // }
 
-// function postTodayEntry(userId) {
+// post entry for today
+function postTodayEntry(userId, todaysDate) {
+	$.ajax({
+		url: `/api/entries/new/${userId}/`,
+		type: 'POST',
+		contentType: 'application/json',
+		dataType: 'json',
+		data: JSON.stringify({ 
+						date: todaysDate, 
+						meal_list: [],
+					}),
+		success: storeToWeekly,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
 
-// }
+// store posted entry to 7 days data storage
+function storeToWeekly(entry) {
+	let weeklyEntries = [];
+	weeklyEntries = JSON.parse(localStorage.getItem('weekly_entries'));
+	weeklyEntries['entries'].push(entry);
 
+	localStorage.setItem('weekly_entries', JSON.stringify(weeklyEntries));
+	return checkForTodaysEntry();
+}
 
+// get entries for 7 days
+function getWeeklyEntries(userId, startDate, endDate) {
+	$.ajax({
+		url: `/api/entries/date/${userId}/`,
+		type: 'GET',
+		data: {
+			startDate: startDate,
+			endDate: endDate
+		},
+		contentType: 'application/json',
+		dataType: 'json',
+		success: storeWeeklyEntry,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
 
-// function todayEntryClicked() {
-// 	$('.today-entry').click((e) => {
+// store 7 days data to local storage
+function storeWeeklyEntry(entry) {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const today = moment().startOf('day').toISOString();
 
-// 		let today = moment().toISOString();
-// 		let date = today.slice(0, 10);
-// 				date += 'T04:00:00.000Z';
+	if (entry) {
+		localStorage.setItem('weekly_entries', JSON.stringify(entry));
+		return checkForTodaysEntry();
+	} else {
+		postTodayEntry(userId, today);
+	};
+}
 
-// 		const entries = JSON.parse(localStorage.getItem('entries')),
-// 					user = JSON.parse(localStorage.getItem('user')),
-// 					todayEntry = entries.find(entry => entry.date === date),
-// 					userId = user._id;
+function checkForTodaysEntry() {
+	const weeklyEntries = JSON.parse(localStorage.getItem('weekly_entries'));
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const todaysDate = moment().startOf('day').toISOString();
 
-// 		if (todayEntry) {
-// 			getTodayEntry(todayEntry._id)
-// 		} else {
-// 			postTodayEntry(userId)
-// 		}
-// 	});
-// }
+	let todaysEntry = weeklyEntries['entries'].find(e => e.date === todaysDate);
 
-// function init() {
-// 	getUsersEntries();
-// 	todayEntryClicked();
-// }
+	if (todaysEntry) {
+		displayEntry(todaysEntry);
+	} else {
+		postTodayEntry(userId, todaysDate);
+	}
+}
 
-// $(init)
+function displayEntry(todaysEntry) {
+	console.log(todaysEntry);
+}
+
+function todayEntryClicked() {
+	$('.today-entry').click((e) => {
+		e.preventDefault();
+		const user = JSON.parse(localStorage.getItem('user'));
+		const userId = user._id;
+
+		const today = moment().startOf('day').toISOString();
+		const startDate = moment().startOf('day').subtract(7, 'day').toISOString();
+		const endDate = today;
+
+		getWeeklyEntries(userId, startDate, endDate);
+	});
+}
+
+function init() {
+	todayEntryClicked();
+}
+
+$(init)
 
 
 

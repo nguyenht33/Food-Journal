@@ -1,3 +1,4 @@
+
 'use strict';
 const express = require('express'),
 			router = express.Router(),
@@ -28,12 +29,5 @@ router.get('/dashboard', jwtAuth, (req, res) => {
 	res.sendFile('dashboard.html', { root: path.join(__dirname, '../public/html') });
 });
 
-router.get('/entries', (req, res) => {
-  res.render('entry');
-})
-
-router.get('/test', (req, res) => {
-	console.log(req.cookie(authToken));
-})
 
 module.exports = { router };

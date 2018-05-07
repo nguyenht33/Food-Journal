@@ -20,7 +20,9 @@ const { router: appRouter } = require('./routes'),
       { router: authRouter, localStrategy, jwtStrategy } = require('./auth'),
       { PORT, DATABASE_URL } = require('./config');
 
-app.use(cookieParser())
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(morgan('common'));
 
@@ -41,7 +43,7 @@ app.use('/api/auth/', authRouter);
 //   }
 //   next();
 // });
-const jwtAuth = passport.authenticate('jwt', { session: false });
+// const jwtAuth = passport.authenticate('jwt', { session: false });
 
 let server;
 

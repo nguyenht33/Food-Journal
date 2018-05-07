@@ -1,11 +1,9 @@
 'use strict';
 const mongoose = require('mongoose'),
 			Schema = mongoose.Schema;
-
 mongoose.Promise = global.Promise;
 
-
-const MealSchema = Schema({
+var MealSchema = Schema({
 	meal: String,
 	time: Date,
 	food: [
@@ -15,7 +13,7 @@ const MealSchema = Schema({
 	note: String
 });
 
-const EntrySchema = Schema({
+var EntrySchema = Schema({
 	date: Date,
 	meal_list: [MealSchema],
 	weight: Number,
@@ -24,15 +22,11 @@ const EntrySchema = Schema({
 	user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
-EntrySchema.methods.serialize = function() {
+EntrySchema.methods.dateId = function() {
 	return {
 		id: this._id,
-		date: this.date,
-		meal_list: this.meal_list,
-		total_calories: this.total_calories,
-		avg_rank: this.avg_rank,
-		user: this.user
-	}
+		date: this.date
+	};
 };
 
 const Entry = mongoose.model('Entry', EntrySchema);

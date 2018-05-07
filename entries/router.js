@@ -10,6 +10,7 @@ const express = require('express'),
 
 // Post an entry to user account
 router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
+	console.log(req.body);
 	let { date, meal_list, weight, total_calories, avg_rank } = req.body;
 	let entry;
 
@@ -22,17 +23,61 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 		user: req.params.userId
 	});	
 
-	newEntry.save()
+	Entry.findOne({date: newEntry.date})
 		.then(_entry => {
-			entry = _entry;
-			return User.findOne({'_id': req.params.userId})
+			console.log(_entry);
+			if (_entry === null) {
+				return newEntry.save()
+			} else {
+					return Promise.reject({
+						code: 422,
+						reason: 'ValidationError', 
+						message: 'Entry for this date already exists',
+						location: 'date'
+					});
+			}
+		})
+		.then(__entry => {
+			entry = __entry;
+			return User.findOne({_id: req.params.userId});
 		})
 		.then(user => {
 			user.entries.push(newEntry);
-			return user.save()
+			return user.save();
 		})
 		.then(user => {
 			res.status(201).send(entry);
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error'})
+		});
+
+	// newEntry.save()
+	// 	.then(_entry => {
+	// 		entry = _entry;
+	// 		return User.findOne({'_id': req.params.userId})
+	// 	})
+	// 	.then(user => {
+	// 		user.entries.push(newEntry);
+	// 		return user.save()
+	// 	})
+	// 	.then(user => {
+	// 		res.status(201).send(entry);
+	// 	})
+	// 	.catch(err => {
+	// 		console.error(err);
+	// 		res.status(500).json({ message: 'Internal server error'});
+	// 	});
+});
+
+// Get all entries from user account
+router.get('/all/:userId', jsonParser, jwtAuth, (req, res) => {
+	Entry
+		.find({ user: req.params.userId })
+		.limit(40)
+		.then(entries => {
+			res.status(200).send(entries);
 		})
 		.catch(err => {
 			console.error(err);
@@ -40,11 +85,11 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
-// Get all entries from user account
-router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
+// Get 7 days of entries
+router.get('/week/:userId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.find({ user: req.params.userId })
-		.limit(40)
+		.limit(7)
 		.then(entries => {
 			res.status(200).send(entries);
 		})
@@ -70,12 +115,12 @@ router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
-// Get an entry by id
-router.get('/:entryId', jsonParser, (req, res) => {
+// Get an entry by entry id
+router.get('/:entryId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
-			res.status(200).json(entry.serialize());
+			res.status(200).send(entry);
 		})
 		.catch(err => {
 			console.error(err);
@@ -93,19 +138,20 @@ router.put('/:entryId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
-router.delete('/:entryId', jsonParser, jwtAuth, (req, res) => {
-	Entry
-		.findOne({_id: req.params.entryId})
-		.then(entry => {
-			entry.remove();
-			entry.save();
-		})
-		.then(res.status(204).send('Entry deleted'))
-		.catch(err => {
-			console.error(err);
-			res.status(500).json({ message: 'Internal server error' });
-		});
-});
+// don't want user to delete entry
+// router.delete('/:entryId', jsonParser, jwtAuth, (req, res) => {
+// 	Entry
+// 		.findOne({_id: req.params.entryId})
+// 		.then(entry => {
+// 			entry.remove();
+// 			entry.save();
+// 		})
+// 		.then(res.status(204).send('Entry deleted'))
+// 		.catch(err => {
+// 			console.error(err);
+// 			res.status(500).json({ message: 'Internal server error' });
+// 		});
+// });
 
 // MEALS
 router.post('/:entryId/meals', jsonParser, jwtAuth, (req, res) => {
