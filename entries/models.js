@@ -7,10 +7,10 @@ var MealSchema = Schema({
 	meal: String,
 	time: Date,
 	food: [
-					{name: String, calories: Number, serving: Number, _id: false }
+					{name: String, calories: Number, servings: Number, _id: false }
 				],
 	rank: Number,
-	note: String
+	notes: String
 });
 
 var EntrySchema = Schema({

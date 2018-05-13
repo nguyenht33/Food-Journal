@@ -25,16 +25,15 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 
 	Entry.findOne({date: newEntry.date})
 		.then(_entry => {
-			console.log(_entry);
-			if (_entry === null) {
-				return newEntry.save()
-			} else {
-					return Promise.reject({
+			if (_entry) {
+				return Promise.reject({
 						code: 422,
 						reason: 'ValidationError', 
 						message: 'Entry for this date already exists',
 						location: 'date'
-					});
+				});
+			} else {
+				return newEntry.save()
 			}
 		})
 		.then(__entry => {
@@ -52,23 +51,6 @@ router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
 			console.error(err);
 			res.status(500).json({ message: 'Internal server error'})
 		});
-
-	// newEntry.save()
-	// 	.then(_entry => {
-	// 		entry = _entry;
-	// 		return User.findOne({'_id': req.params.userId})
-	// 	})
-	// 	.then(user => {
-	// 		user.entries.push(newEntry);
-	// 		return user.save()
-	// 	})
-	// 	.then(user => {
-	// 		res.status(201).send(entry);
-	// 	})
-	// 	.catch(err => {
-	// 		console.error(err);
-	// 		res.status(500).json({ message: 'Internal server error'});
-	// 	});
 });
 
 // Get all entries from user account
@@ -101,11 +83,11 @@ router.get('/week/:userId', jsonParser, jwtAuth, (req, res) => {
 
 // Get all entries by date query
 router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
-	console.log(req.query.startDate, req.query.endDate);
 	Entry
 		.find({ user: req.params.userId, 
 						date: { $gte: req.query.startDate, $lte: req.query.endDate } 
 		})
+		.sort('date')
 		.then(entries => {
 			res.status(200).send({ entries });
 		})
@@ -154,14 +136,25 @@ router.put('/:entryId', jsonParser, jwtAuth, (req, res) => {
 // });
 
 // MEALS
-router.post('/:entryId/meals', jsonParser, jwtAuth, (req, res) => {
-	let { meal, time, image, food, rank, note } = req.body;
+router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
+	let { meal, time, food, rank, notes } = req.body;
 
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
-			entry.meal_list.push({ meal, time, image, food, rank, note });
-			return entry.save();
+			const foundMeal = entry.meal_list.find(m => m.meal === meal);
+
+			if (foundMeal) {
+				return Promise.reject({
+						code: 422,
+						reason: 'ValidationError', 
+						message: 'Meal entry already exists',
+						location: 'meal'
+					});
+			} else {
+				entry.meal_list.push({ meal, time, food, rank, notes });
+				return entry.save();
+			}
 		})
 		.then(entry => res.status(201).json({ entry }))
 		.catch(err => {
@@ -171,8 +164,8 @@ router.post('/:entryId/meals', jsonParser, jwtAuth, (req, res) => {
 });
 
 // Update a meal entry
-router.put('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
-	const { meal, time, image, food, rank, note } = req.body;
+router.put('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
+	const { meal, time, food, rank, notes } = req.body;
 
 	Entry
 		.findOneAndUpdate(
@@ -180,10 +173,9 @@ router.put('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
 			{'$set': {
 								'meal_list.$.meal': meal, 
 								'meal_list.$.time': time, 
-								'meal_list.$.image': image,
 								'meal_list.$.food': food,
 								'meal_list.$.rank': rank,
-								'meal_list.$.note': note
+								'meal_list.$.notes': notes
 							}
 		})
 		.then(entry => {
@@ -195,7 +187,7 @@ router.put('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
-router.delete('/:entryId/meals/:mealId', jsonParser, jwtAuth, (req, res) => {
+router.delete('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.findByIdAndUpdate(
 			{'_id': req.params.entryId}, 

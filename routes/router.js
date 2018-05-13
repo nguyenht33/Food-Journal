@@ -29,5 +29,8 @@ router.get('/dashboard', jwtAuth, (req, res) => {
 	res.sendFile('dashboard.html', { root: path.join(__dirname, '../public/html') });
 });
 
+router.get('/entry', jwtAuth, (req, res) => {
+	res.sendFile('entry.html', { root: path.join(__dirname, '../public/html') });
+});
 
 module.exports = { router };
