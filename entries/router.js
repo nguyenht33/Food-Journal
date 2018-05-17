@@ -156,7 +156,7 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 				return entry.save();
 			}
 		})
-		.then(entry => res.status(201).json({ entry }))
+		.then(entry => res.status(201).send(entry))
 		.catch(err => {
 			console.error(err);
 			res.status(500).json({ message: 'Internal server error' });
