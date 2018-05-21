@@ -7,7 +7,7 @@ var MealSchema = Schema({
 	meal: String,
 	time: Date,
 	food: [
-					{name: String, calories: Number, servings: Number, _id: false }
+					{dish: String, calories: Number, servings: Number, _id: false }
 				],
 	rank: Number,
 	notes: String
