@@ -6,7 +6,6 @@ function displayTodayEntry(entry) {
 	WeeklyEntries['entries'].push(entry);
 	TargetEntry = entry;
 
-	console.log(entry);
 	const mealList = entry.meal_list;
 	let entryTemplate, 
 			mealsTemplate;
@@ -22,15 +21,16 @@ function displayTodayEntry(entry) {
 }
 
 function checkEachMealEntry(mealList) {
+	console.log(mealList);
 	const mealTypes = ['breakfast', 'snack_1', 'lunch', 'snack_2', 'dinner', 'snack_3'];
 	const mealListTemplates = {};
 
-	mealTypes.forEach(meal => {
-		const foundMeal = mealList.find(type => type.meal === meal);
+	mealTypes.forEach(type => {
+		const foundMeal = mealList.find(meal => meal.mealType === type);
 		if (foundMeal) {
-			mealListTemplates[meal] = createMealTemplate(foundMeal);
+			mealListTemplates[type] = createMealTemplate(foundMeal);
 		} else {
-			mealListTemplates[meal] = createEmptyMealTemplate(meal);
+			mealListTemplates[type] = createEmptyMealTemplate(type);
 		}
 	});
 
@@ -38,27 +38,19 @@ function checkEachMealEntry(mealList) {
 }
 
 function createEntryTemplate(mealTemplates) {
-	return `
-		<div class="entries-container">
-			${mealTemplates.breakfast}
-			${mealTemplates.snack_1}
-			${mealTemplates.lunch}
-			${mealTemplates.snack_2}
-			${mealTemplates.dinner}
-			${mealTemplates.snack_3}
-		</div>`
+	return `<div class="entries-container">
+						${mealTemplates.breakfast}
+						${mealTemplates.snack_1}
+						${mealTemplates.lunch}
+						${mealTemplates.snack_2}
+						${mealTemplates.dinner}
+						${mealTemplates.snack_3}
+					</div>`
 }
 
 function createMealTemplate(meal) {
 	const foodList = meal.food;
 	const entryTime = moment(meal.time).format('hh:mm A');
-
-	let mealType;
-	if (meal.meal.indexOf('snack') >= 0) {
-		mealType = 'snack';
-	} else {
-		mealType = meal.meal;
-	}
 
 	let ranks;
 	let numbers = [1, 2, 3, 4, 5];
@@ -71,7 +63,7 @@ function createMealTemplate(meal) {
 	});
 
 	const dishes = `
-		<table class="${meal.meal}-table">
+		<table class="${meal.mealType}-table">
 			<tr>
 				<th>dish</th>
 				<th>calories</th>
@@ -102,8 +94,13 @@ function createMealTemplate(meal) {
 		<h3>${entryTime}</h3>`
 
 	const template = 
-		`<div class="meal-container ${meal.meal}-container">
-			<h2 class="${meal.meal}">${mealType}</h2>
+		`<div class="meal-container ${meal.mealType}-container">
+			<div class="meal-header">
+				<h2 class="${meal.mealType}" id="${meal._id}">
+					${meal.mealName}
+				</h2>
+				<button class="delete-btn" id="${meal.mealType}-delete">X</button>
+			</div>
 			<div class="meal-left">
 				${dishes}
 				${ranking}
@@ -113,22 +110,22 @@ function createMealTemplate(meal) {
 				${time}
 				<input type="button" value="Edit" class="edit-meal">
 			</div>
+			<div class="delete-message"></div>
 		</div>`
 
 	return template;
 }
 
-function createEmptyMealTemplate(meal) {
-	let mealType;
-
-	if (meal.indexOf('snack') >= 0) {
-		mealType = 'snack';
+function createEmptyMealTemplate(type) {
+	let mealName;
+	if (type.indexOf('snack') >= 0) {
+		mealName = 'snack';
 	} else {
-		mealType = meal;
+		mealName = type;
 	}
 	return `
-		<div class="meal-container ${meal}-container">
-			<h2 class="${meal}">${mealType}</h2>
+		<div class="meal-container ${type}-container">
+			<h2 class="${type}">${mealName}</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>`
 }
@@ -161,28 +158,22 @@ function createAllMealsTemplate() {
 		</div>`
 }
 
-///// ADD NEW MEAL ////////
+//// ADD NEW MEAL /////
 function handleAddMeal() {
 	$('main').on('click', '.add-meal', (e) => {
-		const meal = $(e.target).siblings('h2').attr('class');
-		displayNewMealForm(meal);
+		const mealType = $(e.target).siblings('h2').attr('class');
+		const mealName = $(e.target).siblings('h2').html();
+		displayNewMealForm(mealType, mealName);
 	});
 }
 
-function displayNewMealForm(meal) {
-	let mealType;
-	if (meal.indexOf('snack') >= 0) {
-		mealType = 'snack';
-	} else {
-		mealType = meal;
-	}
-
+function displayNewMealForm(mealType, mealName) {
 	const mealForm = 
-	 `<h2 class="${meal}">${mealType}</h2>
+	 `<h2 class="${mealType}">${mealName}</h2>
 		<button class="close-meal-btn">X</button>
 			<div class="form-left">
 				<div class="meal-form-container">
-					<table id="${meal}-table">
+					<table id="${mealType}-table">
 						<th>dish</th>
 						<th>calories</th>
 						<th>servings</th>
@@ -197,7 +188,7 @@ function displayNewMealForm(meal) {
 				</div>
 				<div class="rank-container">
 					<h4>How would you rate this meal?</h4>
-					<form class="ranking-form" id="${meal}-rank">
+					<form class="ranking-form" id="${mealType}-rank">
 						<label class="smilie-1">
 							<input type="radio" name="rank" value="1">
 						</label>
@@ -213,33 +204,35 @@ function displayNewMealForm(meal) {
 						<label class="smilie-5">
 							<input type="radio" name="rank" value="5">
 						</label>
+						<div class="rank-err"></div>
 					</div>
 				</form>
 				<div class="notes-container">
 					<h4>Notes:</h4>
-					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${meal}-notes"></textarea>
+					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes"></textarea>
 				</div>
 			</div>
 			<div class="form-right">
 				<div class="time-container">
 					<h4>Add Time</h4>
 					<form class="time-form">
-						<input type="time" name="time" id="form-time-${meal}">
+						<input type="time" name="time" id="form-time-${mealType}">
 					</form>
+					<div class="time-err"></div>
 				</div>
 				<img src="">
 				<button type="submit" class="form-save">Save</button>
 			</div>`
 
-	$(`.${meal}-container`).html(mealForm);
+	$(`.${mealType}-container`).html(mealForm);
 }
 
 function handleCloseMeal() {
 	$('main').on('click', '.close-meal-btn', (e) => {
-		const meal = $(e.target).siblings('h2').attr('class');
-		const emptyMealTemplate = createEmptyMealTemplate(meal);
+		const mealType = $(e.target).siblings('h2').attr('class');
+		const emptyMealTemplate = createEmptyMealTemplate(mealType);
 
-		$(`.${meal}-container`).html(emptyMealTemplate);
+		$(`.${mealType}-container`).html(emptyMealTemplate);
 	});
 }
 
@@ -280,24 +273,19 @@ function handleRemoveDish() {
 function handleMealSave() {
 	$('main').on('click', '.form-save', (e) => {
 		const entryId = TargetEntry._id;
-		const mealName = $(e.target).closest('.meal-container').find('h2').attr('class');
-		let mealType;
-		if (mealName.indexOf('snack') >= 0) {
-			mealType = 'snack';
-		} else {
-			mealType = mealName;
-		}
+		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
+		const mealName = $(e.target).closest('.meal-container').find('h2').html();
 
 		let foodList = [];
-		$(`#${mealName}-table .food-items`).each(function() {
+		$(`main #${mealType}-table .food-items`).each(function() {
 			const dishes = $(this).find('.dish-cell').html();
 			const calories = $(this).find('.calories-cell').html();
 			const servings = $(this).find('.servings-cell').html();
 			foodList.push({dish: dishes, calories: calories, servings: servings});
 		})
 
-		const rankInput = $('input[name=rank]:checked', `#${mealName}-rank`).val();
-		const notesInput = $(`#${mealName}-notes`).val();
+		const rankInput = $('input[name=rank]:checked', `main #${mealType}-rank`).val();
+		const notesInput = $(`main #${mealType}-notes`).val();
 		let mealNotes;
 		if (notesInput === '') {
 			mealNotes = 'No notes';
@@ -306,62 +294,80 @@ function handleMealSave() {
 		}
 
 		const date = TargetEntry.date;
-		const timeInput = $(`#form-time-${mealName}`).val();
+		const timeInput = $(`#form-time-${mealType}`).val();
 
-		if (!$('.food-items').length) {
-			$('.meal-form-err').html('<p>Please add a meal</p>')
+		if (!$(`main .${mealType}-container .food-items`).length) {
+			$(`main .${mealType}-container .meal-form-err`).html('<p>Please add a meal</p>')
 		} else if (!rankInput) {
-			$('.rank-container').append('<p>Please rate this meal</p>')
-		} else if (timeInput === '') {
-			$('.time-container').append('<p>Please fill out time</p>')
+			$(`main .${mealType}-container .rank-err`).html('<p>Please rate this meal</p>');
+		} else if (!timeInput) {
+			$(`main .${mealType}-container .time-err`).html('<p>Please fill out time</p>')
 		} else {
 			const mealRank = rankInput;
 			const currentTime = moment(timeInput, 'HH:mm A').toISOString();
 			const time = date.slice(0, -13).concat(currentTime.slice(-13));
 			const	mealTime = moment(time).format('hh:mm A');
 
-			const data = JSON.stringify({
-				meal: mealName,
+			const mealInputs = JSON.stringify({
+				mealName: mealName,
+				mealType: mealType, 
 				time: time,
 				food: foodList,
 				rank: mealRank,
 				notes: mealNotes
+
 			})
-			postNewMeal(entryId, data);
+			postMealRequest(entryId, mealInputs);
 		}
 	});
 }
 
-function postNewMeal(entryId, data) {
+function postMealRequest(entryId, mealInputs) {
 	$.ajax({
 		url: `/api/entries/meals/${entryId}/`,
 		type: 'POST',
-		data: data,
+		data: mealInputs,
 		contentType: 'application/json',
 		dataType: 'json',
-		success: displayTodayEntry,
+		success: displayMeal,
 		error: function(err) {
 			console.log(err);
 		}
 	});
 }
 
+function getMealRequest(entryId, mealId) {
+	$.ajax({
+		url: `/api/entries/meals/${entryId}/${mealId}`,
+		type: 'GET',
+		contentType: 'application/json',
+		dataType: 'json',
+		success: displayMeal,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+function displayMeal(meal) {
+	const mealTemplate = createMealTemplate(meal.meal_list[0]);
+	const mealType = meal.meal_list[0].mealType;
+	$(`.${mealType}-container`).html(mealTemplate);
+}
+
+
+//// EDIT MEAL ////
 function handleMealEdit() {
 	$('main').on('click', '.edit-meal', (e) => {
-		const mealName = $(e.target).closest('.meal-container').find('h2').attr('class');
-		let mealType;
-		if (mealName.indexOf('snack') >= 0) {
-			mealType = 'snack';
-		} else {
-			mealType = mealName;
-		}
+		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
+		const mealName = $(e.target).closest('.meal-container').find('h2').html();
 
 		const foodList = [];
 		const headers = [];
-		$(`.${mealName}-table th`).each(function(index, item) {
+		$(`.${mealType}-table th`).each(function(index, item) {
 		    headers[index] = $(item).html();
 		});
-		$(`.${mealName}-table tr`).has('td').each(function() {
+		$(`.${mealType}-table tr`).has('td').each(function() {
 		    let arrayItem = {};
 		    $('td', $(this)).each(function(index, item) {
 		        arrayItem[headers[index]] = $(item).html();
@@ -378,57 +384,123 @@ function handleMealEdit() {
 		})
 
 		const notesInput = $(e.target).closest('.meal-container').find('.meal-left p').html();
-		const timeInput =  $(e.target).siblings('h3').html();
+		const timeInput =  $(e.target).siblings('h3').html().slice(0, 5);
 
 		displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, timeInput);
 	});
 }
 
 function displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
-	const mealClone = $(`.${mealName}-container`).html();
+	const entryId = TargetEntry._id;
+	const mealId = $(`.${mealType}`).attr("id");
+	const mealCopy = $(`.${mealType}-container`).html();
 	const mealEditTemplate = makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput);
 
-	$(`.${mealName}-container`).html(mealEditTemplate);
+	$(`.${mealType}-container`).html(mealEditTemplate);
 
 	// On close button clicked
-	$(`.edit-${mealName}`).on('click', (e) => {
+	$(`.edit-${mealType}`).on('click', (e) => {
+		$(e.target).prop("disabled", true);
 		const exitMessage = `<div class="exit-message">
 													<p>Do you want to save changes?</p>
-													<button class="edit-save">save</button>
-													<button class="edit-close">close</button>
+													<button class="edit-save">yes</button>
+													<button class="edit-close">no</button>
 												</div>`
-		$(`.${mealName}-container`).prepend(exitMessage);
+		$(`.${mealType}-container`).prepend(exitMessage);
 	});
 
 	// On close
-	$(`.${mealName}-container`).on('click', '.edit-close', (e) => {
-		$(`.${mealName}-container`).html(mealClone);
+	$(`.${mealType}-container`).on('click', '.edit-close', (e) => {
+		$(`.${mealType}-container`).html(mealCopy);
 	});
 
 	// On save
-	$(`.${mealName}-container`).on('click', '.edit-save', (e) => {
-		handleMealEditSave(mealName);
+	$(`.${mealType}-container`).on('click', '.edit-save', (e) => {
+		handleEditSave(mealName, mealType, entryId, mealId);
 	});
 }
 
-function handleMealEditSave(mealName) {
-	console.log(mealName);
+function handleEditSave(mealName, mealType, entryId, mealId) {
+	let foodList = [];
+	$(`main #${mealType}-table .food-items`).each(function() {
+		const dishes = $(this).find('.dish-cell').html();
+		const calories = $(this).find('.calories-cell').html();
+		const servings = $(this).find('.servings-cell').html();
+		foodList.push({dish: dishes, calories: calories, servings: servings});
+	})
+
+	const rankInput = $('input[name=rank]:checked', `main #${mealType}-rank`).val();
+	const notesInput = $(`main #${mealType}-notes`).val();
+	let mealNotes;
+	if (notesInput === '') {
+		mealNotes = 'No notes';
+	} else {
+		mealNotes = notesInput;
+	}
+
+	const date = TargetEntry.date;
+	const timeInput = $(`#form-time-${mealType}`).val();
+
+	if (!$(`main .${mealType}-container .food-items`).length) {
+		$(`main .${mealType}-container .exit-message`).remove();
+		$(`.edit-${mealType}`).prop("disabled", false);
+		$(`main .${mealType}-container .meal-form-err`).html('<p>Please add a meal</p>')
+	} else if (!rankInput) {
+		$(`main .${mealType}-container .exit-message`).remove();
+		$(`.edit-${mealType}`).prop("disabled", false);
+		$(`main .${mealType}-container .rank-err`).html('<p>Please rate this meal</p>');
+	} else if (!timeInput) {
+		$(`main .${mealType}-container .exit-message`).remove();
+		$(`.edit-${mealType}`).prop("disabled", false);
+		$(`main .${mealType}-container .time-err`).html('<p>Please fill out time</p>')
+	} else {
+		const mealRank = rankInput;
+		const currentTime = moment(timeInput, 'HH:mm A').toISOString();
+		const time = date.slice(0, -13).concat(currentTime.slice(-13));
+		const	mealTime = moment(time).format('hh:mm A');
+
+		const mealInputs = JSON.stringify({
+			mealName: mealName,
+			mealType: mealType, 
+			time: time,
+			food: foodList,
+			rank: mealRank,
+			notes: mealNotes
+
+		})
+		putMealRequest(mealInputs, entryId, mealId)
+	}
+}
+
+function putMealRequest(mealInputs, entryId, mealId) {
+	$.ajax({
+		url: `/api/entries/meals/${entryId}/${mealId}`,
+		type: 'PUT',
+		data: mealInputs,
+		contentType: 'application/json',
+		dataType: 'json',
+		success: getMealRequest(entryId, mealId),
+		error: function(err) {
+			console.log(err);
+		}
+	});
 }
 
 function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
 	const foodTable = `${foodList.map(food => 
-											`<tr>
+											`<tr class="food-items">
 													<td class="dish-cell">${food.dish}</td>
 													<td class="calories-cell">${food.calories}</td>
 													<td class="servings-cell">${food.servings}</td>
+													<td><button class="remove-dish-btn">x</button></td>
 											</tr>`).join("")}`
 
 	const mealForm = 
-	 `<h2 class="${mealName}">${mealType}</h2>
-		<button class="close-edit-btn edit-${mealName}">X</button>
+	 `<h2 class="${mealType}">${mealName}</h2>
+		<button class="close-edit-btn edit-${mealType}">X</button>
 			<div class="form-left">
 				<div class="meal-form-container">
-					<table id="${mealName}-table">
+					<table id="${mealType}-table">
 						<th>dish</th>
 						<th>calories</th>
 						<th>servings</th>
@@ -444,7 +516,7 @@ function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInpu
 				</div>
 				<div class="rank-container">
 					<h4>How would you rate this meal?</h4>
-					<form class="ranking-form" id="${mealName}-rank">
+					<form class="ranking-form" id="${mealType}-rank">
 						<label class="smilie-1">
 							<input type="radio" name="rank" value="1">
 						</label>
@@ -460,25 +532,66 @@ function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInpu
 						<label class="smilie-5">
 							<input type="radio" name="rank" value="5">
 						</label>
+						<div class="rank-err"></div>
 					</div>
 				</form>
 				<div class="notes-container">
 					<h4>Notes:</h4>
-					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealName}-notes">${notesInput}</textarea>
+					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes">${notesInput}</textarea>
 				</div>
 			</div>
 			<div class="form-right">
 				<div class="time-container">
 					<h4>Add Time</h4>
 					<form class="time-form">
-						<input type="time" name="time" value="${timeInput}" id="form-time-${mealName}">
+						<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
 					</form>
+					<div class="time-err"></div>
 				</div>
 				<img src="">
-				<button type="submit" class="form-save edit-save">Save</button>
+				<button type="submit" class="edit-save">Save</button>
 			</div>`
 
 	return mealForm;
+}
+
+///// DELETE MEAL /////
+function handleMealDelete() {
+	$('main').on('click', '.delete-btn', (e) => {
+		const entryId = TargetEntry._id;
+		const mealId = $(e.target).siblings('h2').attr('id');
+		const mealType = $(e.target).siblings('h2').attr('class');
+		const deleteMessage = `<p>Do you want to remove this meal?</p>
+													<button class="delete-yes">yes</button>
+													<button class="delete-no">no</button>`
+		$(`.${mealType}-container .delete-message`).html(deleteMessage);
+
+		$(`.${mealType}-container`).on('click', '.delete-yes', (e) => {
+			deleteMealRequest(entryId, mealId, mealType);
+		});
+
+		$(`.${mealType}-container`).on('click', '.delete-no',(e) => {
+			$(`.${mealType}-container .delete-message`).html('');
+		});
+	});
+}
+
+function deleteMealRequest(entryId, mealId, mealType) {
+	$.ajax({
+		url: `/api/entries/meals/${entryId}/${mealId}`,
+		type: 'DELETE',
+		contentType: 'application/json',
+		dataType: 'json',
+		success: displayEmptyMeal(mealType),
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+function displayEmptyMeal(mealType) {
+	const mealTemplate = createEmptyMealTemplate(mealType);
+	$(`.${mealType}-container`).html(mealTemplate);
 }
 
 ///// DISPLAY WEEKDAYS NAV /////
@@ -595,8 +708,6 @@ function getWeeklyEntries() {
 	});
 }
 
-
-
 function init() {
 	getWeeklyEntries();
 	handleDayClicked();
@@ -606,6 +717,7 @@ function init() {
 	handleRemoveDish();
 	handleMealSave();
 	handleMealEdit();
+	handleMealDelete();
 }
 
 $(init)

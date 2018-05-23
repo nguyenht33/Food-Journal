@@ -4,7 +4,8 @@ const mongoose = require('mongoose'),
 mongoose.Promise = global.Promise;
 
 var MealSchema = Schema({
-	meal: String,
+	mealName: String,
+	mealType: String,
 	time: Date,
 	food: [
 					{dish: String, calories: Number, servings: Number, _id: false }

@@ -136,13 +136,26 @@ router.put('/:entryId', jsonParser, jwtAuth, (req, res) => {
 // });
 
 // MEALS
+router.get('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
+	Entry
+		.findOne({'_id': req.params.entryId}, {meal_list: {$elemMatch: {_id: req.params.mealId}}})
+		.then(meal => {
+			console.log(meal);
+			res.status(200).send(meal);
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error'});
+		});
+});
+
 router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
-	let { meal, time, food, rank, notes } = req.body;
+	let { mealName, mealType, time, food, rank, notes } = req.body;
 
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
-			const foundMeal = entry.meal_list.find(m => m.meal === meal);
+			const foundMeal = entry.meal_list.find(m => m.mealType === mealType);
 
 			if (foundMeal) {
 				return Promise.reject({
@@ -152,11 +165,14 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 						location: 'meal'
 					});
 			} else {
-				entry.meal_list.push({ meal, time, food, rank, notes });
+				entry.meal_list.push({ mealName, mealType, time, food, rank, notes });
 				return entry.save();
 			}
 		})
-		.then(entry => res.status(201).send(entry))
+		.then(entry => {
+			return Entry.findOne({'_id': req.params.entryId}, {meal_list: {$elemMatch: {mealType: mealType}}})
+		})
+		.then(meal => res.status(201).send(meal))
 		.catch(err => {
 			console.error(err);
 			res.status(500).json({ message: 'Internal server error' });
@@ -165,13 +181,14 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 
 // Update a meal entry
 router.put('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
-	const { meal, time, food, rank, notes } = req.body;
+	const { mealName, mealType, time, food, rank, notes } = req.body;
 
 	Entry
 		.findOneAndUpdate(
 			{'_id': req.params.entryId, 'meal_list._id': req.params.mealId},
 			{'$set': {
-								'meal_list.$.meal': meal, 
+								'meal_list.$.mealName': mealName, 
+								'meal_list.$.mealType': mealType, 
 								'meal_list.$.time': time, 
 								'meal_list.$.food': food,
 								'meal_list.$.rank': rank,
