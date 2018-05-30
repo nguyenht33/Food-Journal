@@ -1,4 +1,4 @@
-'Use strict';
+'use strict';
 const {Entry} = require('./models');
 const {router} = require('./router');
 

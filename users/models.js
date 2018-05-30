@@ -45,22 +45,6 @@ UserSchema.methods.serialize = function() {
 	};
 };
 
-// UserSchema.pre('save', function(next) {
-// 	var user = this;
-// 	bcrypt.hash(this.password, 10, function(err, hash) {
-// 		user.password = hash;
-// 		next();
-// 	});
-// });
-
-// UserSchema.pre('update', function(next) {
-// 	var user = this;
-// 	bcrypt.hash(this.password, 10, function(err, hash) {
-// 		user.password = hash;
-// 		next();
-// 	});
-// });
-
 UserSchema.methods.validatePassword = function(password) {
 	return bcrypt.compare(password, this.password);
 };

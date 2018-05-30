@@ -1,10 +1,199 @@
 let WeeklyEntries;
 let TargetEntry;
 
+function init() {
+	checkRoute();
+	// getWeeklyEntries();
+	handleDayClicked();
+	handleAddMeal();
+	handleCloseMeal();
+	handleAddDish();
+	handleRemoveDish();
+	handleMealSave();
+	handleMealEdit();
+	handleMealDelete();
+}
+
+//// CHECK IF TODAY'S ENTRY OR PREVIOUS ENTRY ROUTE ////
+function checkRoute() {
+	const targetWeek = JSON.parse(localStorage.getItem('TargetWeek'));
+	if (targetWeek === null) {
+		getThisWeeksEntries();
+	} else {
+		getPreviousWeeksEntries(targetWeek);
+	}
+}
+
+//// GET ENTRIES FOR 7 DAYS ////
+function getPreviousWeeksEntries(targetWeek) {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const startDate = moment(targetWeek).startOf('week').toISOString();
+	let endDate;
+
+	const compareToday = moment(targetWeek).isSame(new Date(), 'week'); 
+	if (compareToday) {
+		const today = moment().startOf('day').toISOString();
+		endDate = today;
+	} else {
+		endDate = moment(targetWeek).endOf('week').toISOString();
+	}
+
+	$.ajax({
+		url: `/api/entries/date/${userId}/`,
+		type: 'GET',
+		data: {
+			startDate: startDate,
+			endDate: endDate
+		},
+		contentType: 'application/json',
+		dataType: 'json',
+		success: function(d) {console.log(d)},
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+//// GET ENTRIES FOR 7 DAYS ////
+function getThisWeeksEntries() {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const today = moment().startOf('day').toISOString();
+	const endDate = today;
+	const startDate = moment(today).startOf('week').toISOString();
+
+	$.ajax({
+		url: `/api/entries/date/${userId}/`,
+		type: 'GET',
+		data: {
+			startDate: startDate,
+			endDate: endDate
+		},
+		contentType: 'application/json',
+		dataType: 'json',
+		success: checkThisWeekEntries,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+///// DISPLAY WEEKDAYS NAV /////
+function checkThisWeekEntries(entries) {
+	WeeklyEntries = entries;
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const today = moment().startOf('day').toISOString();
+
+	if (entries) {
+		checkForTodaysEntry(entries);
+	} else {
+		postTodayEntry(userId, today);
+	};
+}
+
+// check for today's entry
+function checkForTodaysEntry(entries) {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const todaysDate = moment().startOf('day').toISOString();
+
+	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
+	TargetEntry = todaysEntry;
+
+	if (todaysEntry) {
+		checkMealList(todaysEntry);
+	} else {
+		postTodayEntry(userId, todaysDate);
+	}
+}
+
+function checkMealList(todaysEntry) {
+	const mealList = todaysEntry.meal_list;
+	
+	if (mealList.length) {
+		displayTodayEntry(todaysEntry);
+	} else {
+		displayWeekdaysNav();
+		const emptyMealTemplate = createAllMealsTemplate();
+		$('main').html(emptyMealTemplate);
+	}
+}
+
+function displayWeekdaysNav() {
+	const weeklyEntries = WeeklyEntries['entries'];
+	const entries = weeklyEntries.map(e => {
+		let entry = {};
+		let entryList = [];
+		let day = moment(e.date).format('dddd');
+		let date = moment(e.date).format('MMMM DD, YYYY');
+
+		entry = {day: day, date: date, id: e._id};
+		return entry;
+	});
+
+	const daysIndex = [0, 1, 2, 3, 4, 5, 6];
+	const weekArray = daysIndex.map(dow => {
+											let day = moment().locale('en-gb').weekday(dow).format('dddd');
+											let date = moment().locale('en-gb').weekday(dow).format('MMMM DD, YYYY');
+											entry = {day: day, date: date};
+											return entry;
+									});
+
+	const weekDaysArray = weekArray.map(entry => entries.find(e => e.day === entry.day) || entry);
+	const latestEntry = entries.slice(entries.length -1);
+	const latestDay = latestEntry[0].day;
+	const latestIndex = weekArray.findIndex(i => i.day === latestDay);
+	const weekDays = weekDaysArray.slice(0, latestIndex + 1);
+
+	const weekDaysTemplate = getWeekDaysTemplate(weekDays);
+	$('nav').html(weekDaysTemplate);
+}
+
+function getWeekDaysTemplate(entries) {
+	return `
+		<ul class="days-list">
+			${entries.map(entry => `<li id="${entry.id}" class="day"><a>${entry.day}</a></li>`).join("")}
+		</ul>`;
+}
+
+function handleDayClicked() {
+	$('nav').on('click', 'a', (e) => {
+		console.log($(e.target).parent().attr('id'));
+	});
+}
+
+//// POST ENTRY FOR TODAY ////
+function postTodayEntry(userId, todaysDate) {
+	$.ajax({
+		url: `/api/entries/new/${userId}/`,
+		type: 'POST',
+		contentType: 'application/json',
+		dataType: 'json',
+		data: JSON.stringify({ 
+						date: todaysDate, 
+						meal_list: [],
+					}),
+		success: displayTodayEntry,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
 ///// DISPLAY ENTRY //////
 function displayTodayEntry(entry) {
-	WeeklyEntries['entries'].push(entry);
+	const todaysDate = moment().startOf('day').toISOString();
+	const todaysEntry = WeeklyEntries['entries'].findIndex(e => e.date === todaysDate);
+	if (todaysEntry === -1) {
+		WeeklyEntries['entries'].push(entry);
+	} else {
+		WeeklyEntries['entries'][todaysEntry] = entry;
+	}
 	TargetEntry = entry;
+
+	displayWeekdaysNav();
 
 	const mealList = entry.meal_list;
 	let entryTemplate, 
@@ -21,7 +210,6 @@ function displayTodayEntry(entry) {
 }
 
 function checkEachMealEntry(mealList) {
-	console.log(mealList);
 	const mealTypes = ['breakfast', 'snack_1', 'lunch', 'snack_2', 'dinner', 'snack_3'];
 	const mealListTemplates = {};
 
@@ -96,9 +284,7 @@ function createMealTemplate(meal) {
 	const template = 
 		`<div class="meal-container ${meal.mealType}-container">
 			<div class="meal-header">
-				<h2 class="${meal.mealType}" id="${meal._id}">
-					${meal.mealName}
-				</h2>
+				<h2 class="${meal.mealType}" id="${meal._id}">${meal.mealName}</h2>
 				<button class="delete-btn" id="${meal.mealType}-delete">X</button>
 			</div>
 			<div class="meal-left">
@@ -112,7 +298,6 @@ function createMealTemplate(meal) {
 			</div>
 			<div class="delete-message"></div>
 		</div>`
-
 	return template;
 }
 
@@ -137,7 +322,7 @@ function createAllMealsTemplate() {
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_1-container">
-			<h2 class="snack_1">Snack</h2>
+			<h2 class="snack_1">Morning Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container lunch-container">
@@ -145,7 +330,7 @@ function createAllMealsTemplate() {
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_2-container">
-			<h2 class="snack_2">Snack</h2>
+			<h2 class="snack_2">Afternoon Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container dinner-container">
@@ -153,7 +338,7 @@ function createAllMealsTemplate() {
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_3-container">
-			<h2 class="snack_3">Snack</h2>
+			<h2 class="snack_3">Evening Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>`
 }
@@ -315,7 +500,6 @@ function handleMealSave() {
 				food: foodList,
 				rank: mealRank,
 				notes: mealNotes
-
 			})
 			postMealRequest(entryId, mealInputs);
 		}
@@ -360,7 +544,7 @@ function displayMeal(meal) {
 function handleMealEdit() {
 	$('main').on('click', '.edit-meal', (e) => {
 		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
-		const mealName = $(e.target).closest('.meal-container').find('h2').html();
+		const mealNameInput = $(e.target).closest('.meal-container').find('h2').html();
 
 		const foodList = [];
 		const headers = [];
@@ -466,7 +650,6 @@ function handleEditSave(mealName, mealType, entryId, mealId) {
 			food: foodList,
 			rank: mealRank,
 			notes: mealNotes
-
 		})
 		putMealRequest(mealInputs, entryId, mealId)
 	}
@@ -479,7 +662,10 @@ function putMealRequest(mealInputs, entryId, mealId) {
 		data: mealInputs,
 		contentType: 'application/json',
 		dataType: 'json',
-		success: getMealRequest(entryId, mealId),
+		// success: getMealRequest(entryId, mealId),
+		success: function(data) {
+			console.log(data);
+		},
 		error: function(err) {
 			console.log(err);
 		}
@@ -592,132 +778,6 @@ function deleteMealRequest(entryId, mealId, mealType) {
 function displayEmptyMeal(mealType) {
 	const mealTemplate = createEmptyMealTemplate(mealType);
 	$(`.${mealType}-container`).html(mealTemplate);
-}
-
-///// DISPLAY WEEKDAYS NAV /////
-function displayEntriesNav(entries) {
-	WeeklyEntries = entries;
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
-	const today = moment().startOf('day').toISOString();
-
-	if (WeeklyEntries) {
-		getWeekDaysList();
-		checkForTodaysEntry();
-	} else {
-		postTodayEntry(userId, today);
-	};
-}
-
-function getWeekDaysList() {
-	const weeklyEntries = WeeklyEntries['entries'];
-	const entries = weeklyEntries.map(e => {
-		let entry = {};
-		let entryList = [];
-		let day = moment(e.date).format('dddd');
-		let date = moment(e.date).format('MMMM DD, YYYY');
-
-		entry = {day: day, date: date, id: e._id};
-		return entry;
-	});
-
-	const weekDaysTemplate = getWeekDaysTemplate(entries);
-	$('nav').html(weekDaysTemplate);
-}
-
-function getWeekDaysTemplate(entries) {
-	return `
-		<ul class="days-list">
-			${entries.map(entry => `<li id="${entry.id}" class="day"><a>${entry.day}</a></li>`).join("")}
-		</ul>`;
-}
-
-function handleDayClicked() {
-	$('nav').on('click', 'a', (e) => {
-		console.log($(e.target).parent().attr('id'));
-	});
-}
-
-//// POST ENTRY FOR TODAY ////
-function postTodayEntry(userId, todaysDate) {
-	$.ajax({
-		url: `/api/entries/new/${userId}/`,
-		type: 'POST',
-		contentType: 'application/json',
-		dataType: 'json',
-		data: JSON.stringify({ 
-						date: todaysDate, 
-						meal_list: [],
-					}),
-		success: displayTodayEntry,
-		error: function(err) {
-			console.log(err);
-		}
-	});
-}
-
-// check for today's entry
-function checkForTodaysEntry() {
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
-	const todaysDate = moment().startOf('day').toISOString();
-
-	const todaysEntry = WeeklyEntries['entries'].find(e => e.date === todaysDate);
-	TargetEntry = todaysEntry;
-
-	if (todaysEntry) {
-		checkMealList(todaysEntry);
-	} else {
-		postTodayEntry(userId, todaysDate);
-	}
-}
-
-function checkMealList(todaysEntry) {
-	const mealList = todaysEntry.meal_list;
-	
-	if (mealList.length) {
-		displayTodayEntry(todaysEntry);
-	} else {
-		const emptyMealTemplate = createAllMealsTemplate();
-		$('main').html(emptyMealTemplate);
-	}
-}
-
-//// GET ENTRIES FOR 7 DAYS ////
-function getWeeklyEntries() {
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
-
-	const today = moment().startOf('day').toISOString();
-	const endDate = today;
-	const startDate = moment(today).startOf('week').toISOString();
-
-	$.ajax({
-		url: `/api/entries/date/${userId}/`,
-		type: 'GET',
-		data: {
-			startDate: startDate,
-			endDate: endDate
-		},
-		contentType: 'application/json',
-		dataType: 'json',
-		success: displayEntriesNav,
-		error: function(err) {
-			console.log(err);
-		}
-	});
-}
-
-function init() {
-	getWeeklyEntries();
-	handleDayClicked();
-	handleAddMeal();
-	handleCloseMeal();
-	handleAddDish();
-	handleRemoveDish();
-	handleMealSave();
-	handleMealEdit();
-	handleMealDelete();
 }
 
 $(init)

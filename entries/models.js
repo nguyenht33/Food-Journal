@@ -3,7 +3,7 @@ const mongoose = require('mongoose'),
 			Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
-var MealSchema = Schema({
+const MealSchema = Schema({
 	mealName: String,
 	mealType: String,
 	time: Date,
@@ -14,7 +14,7 @@ var MealSchema = Schema({
 	notes: String
 });
 
-var EntrySchema = Schema({
+const EntrySchema = Schema({
 	date: Date,
 	meal_list: [MealSchema],
 	weight: Number,

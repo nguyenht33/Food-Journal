@@ -10,7 +10,6 @@ const express = require('express'),
 
 // Post an entry to user account
 router.post('/new/:userId', jsonParser, jwtAuth, (req, res) => {
-	console.log(req.body);
 	let { date, meal_list, weight, total_calories, avg_rank } = req.body;
 	let entry;
 
@@ -60,6 +59,23 @@ router.get('/all/:userId', jsonParser, jwtAuth, (req, res) => {
 		.limit(40)
 		.then(entries => {
 			res.status(200).send(entries);
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error'});
+		});
+});
+
+router.get('/months/:userId', jsonParser, jwtAuth, (req, res) => {
+	let entryDates;
+	Entry
+		.find({ user: req.params.userId })
+		.sort('date')
+		.then(entries => {
+			entryDates = entries.map(entry => {
+				return {date: entry.date};
+			}) 
+			res.status(200).send(entryDates);
 		})
 		.catch(err => {
 			console.error(err);
@@ -152,6 +168,7 @@ router.get('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
 router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 	let { mealName, mealType, time, food, rank, notes } = req.body;
 
+	console.log(mealName);
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
@@ -196,7 +213,7 @@ router.put('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
 							}
 		})
 		.then(entry => {
-			res.status(204).end();
+			res.status(200).send({ mealName, mealType, time, food, rank, notes });
 		})
 		.catch(err => {
 			console.error(err);
