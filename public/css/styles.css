@@ -12,3 +12,14 @@ body {
 .week {
 	background-color: gainsboro;
 }
+
+.dropdown-content {
+	display: none;
+	list-style: none;
+}
+
+.show {
+	display: block;
+}
+
+

@@ -168,7 +168,6 @@ router.get('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
 router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 	let { mealName, mealType, time, food, rank, notes } = req.body;
 
-	console.log(mealName);
 	Entry
 		.findOne({_id: req.params.entryId})
 		.then(entry => {
@@ -187,9 +186,8 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 			}
 		})
 		.then(entry => {
-			return Entry.findOne({'_id': req.params.entryId}, {meal_list: {$elemMatch: {mealType: mealType}}})
+			res.status(201).send({ mealName, mealType, time, food, rank, notes })
 		})
-		.then(meal => res.status(201).send(meal))
 		.catch(err => {
 			console.error(err);
 			res.status(500).json({ message: 'Internal server error' });

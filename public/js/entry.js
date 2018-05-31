@@ -1,9 +1,10 @@
-let WeeklyEntries;
-let TargetEntry;
+let WeeklyEntries; // store entries for one week, use to navigate weekdays nav
+let TargetEntry; // store one entry, use to display selected weekday
 
 function init() {
+	displayHeader();
 	checkRoute();
-	// getWeeklyEntries();
+	handleDropDownClicked();
 	handleDayClicked();
 	handleAddMeal();
 	handleCloseMeal();
@@ -48,11 +49,27 @@ function getPreviousWeeksEntries(targetWeek) {
 		},
 		contentType: 'application/json',
 		dataType: 'json',
-		success: function(d) {console.log(d)},
+		success: displayPreviousEntries,
 		error: function(err) {
 			console.log(err);
 		}
 	});
+}
+
+function displayPreviousEntries(entries) {
+	WeeklyEntries = entries['entries'];
+
+	// diplays first day of week
+	const dayOfWeek = entries['entries'][0].date;
+	const firstDayOfWeek = moment(dayOfWeek).locale('en-gb').weekday(dayOfWeek).startOf('week').toISOString();
+	const targetEntry = entries['entries'].find(e => e.date === firstDayOfWeek);
+
+	if (targetEntry) {
+		TargetEntry = targetEntry;
+		checkMealList(targetEntry);
+	} else {
+		postEntry(firstDayOfWeek);
+	}
 }
 
 //// GET ENTRIES FOR 7 DAYS ////
@@ -79,41 +96,37 @@ function getThisWeeksEntries() {
 	});
 }
 
-///// DISPLAY WEEKDAYS NAV /////
+// check if this week has any entries
 function checkThisWeekEntries(entries) {
-	WeeklyEntries = entries;
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
+	WeeklyEntries = entries['entries'];
 	const today = moment().startOf('day').toISOString();
 
 	if (entries) {
 		checkForTodaysEntry(entries);
 	} else {
-		postTodayEntry(userId, today);
+		postEntry(today);
 	};
 }
 
 // check for today's entry
 function checkForTodaysEntry(entries) {
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
 	const todaysDate = moment().startOf('day').toISOString();
-
 	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
 	TargetEntry = todaysEntry;
 
 	if (todaysEntry) {
 		checkMealList(todaysEntry);
 	} else {
-		postTodayEntry(userId, todaysDate);
+		postEntry(todaysDate);
 	}
 }
 
-function checkMealList(todaysEntry) {
-	const mealList = todaysEntry.meal_list;
+// check meal then displays meals if entry exists
+function checkMealList(entry) {
+	const mealList = entry.meal_list;
 	
 	if (mealList.length) {
-		displayTodayEntry(todaysEntry);
+		displayEntry(entry);
 	} else {
 		displayWeekdaysNav();
 		const emptyMealTemplate = createAllMealsTemplate();
@@ -121,75 +134,115 @@ function checkMealList(todaysEntry) {
 	}
 }
 
+///// DISPLAY WEEKDAYS NAV /////
 function displayWeekdaysNav() {
-	const weeklyEntries = WeeklyEntries['entries'];
+	const weeklyEntries = WeeklyEntries;
+	// get all entries available for this week
 	const entries = weeklyEntries.map(e => {
 		let entry = {};
 		let entryList = [];
 		let day = moment(e.date).format('dddd');
 		let date = moment(e.date).format('MMMM DD, YYYY');
-
-		entry = {day: day, date: date, id: e._id};
-		return entry;
+		return entry = {day: day, date: date, iso: e.date, id: e._id};
 	});
 
+	// get all days and dates for this week
 	const daysIndex = [0, 1, 2, 3, 4, 5, 6];
 	const weekArray = daysIndex.map(dow => {
 											let day = moment().locale('en-gb').weekday(dow).format('dddd');
 											let date = moment().locale('en-gb').weekday(dow).format('MMMM DD, YYYY');
-											entry = {day: day, date: date};
+											let iso = moment().locale('en-gb').weekday(dow).startOf('day').toISOString();
+
+											entry = {day: day, date: date, iso: iso};
 											return entry;
 									});
 
+	// compare weekly entries & dates for this week
 	const weekDaysArray = weekArray.map(entry => entries.find(e => e.day === entry.day) || entry);
 	const latestEntry = entries.slice(entries.length -1);
 	const latestDay = latestEntry[0].day;
 	const latestIndex = weekArray.findIndex(i => i.day === latestDay);
+
+	// remove dates after today
 	const weekDays = weekDaysArray.slice(0, latestIndex + 1);
 
-	const weekDaysTemplate = getWeekDaysTemplate(weekDays);
+	// show targetdate as button
+	const targetDate = weekDays.find(e => e.iso === TargetEntry.date);
+	const weekDaysTemplate = getWeekDaysTemplate(weekDays, targetDate);
 	$('nav').html(weekDaysTemplate);
 }
 
-function getWeekDaysTemplate(entries) {
+function getWeekDaysTemplate(weekDays, targetDate) {
 	return `
-		<ul class="days-list">
-			${entries.map(entry => `<li id="${entry.id}" class="day"><a>${entry.day}</a></li>`).join("")}
+		<button class="dropdown">
+			${targetDate.day}
+			<span>${targetDate.date}</span>
+		</button>
+		<ul class="dropdown-content">
+			${weekDays.map(entry => `<li ${entry.id ? `id="${entry.id}"` : `id="${entry.iso}"`} class="day"><a>${entry.day}</a></li>`).join("")}
 		</ul>`;
+}
+
+function handleDropDownClicked() {
+	$('nav').on('click', '.dropdown', (e) => {
+		$('.dropdown-content').toggleClass('show');
+	});
 }
 
 function handleDayClicked() {
 	$('nav').on('click', 'a', (e) => {
-		console.log($(e.target).parent().attr('id'));
+		const entryId = ($(e.target).parent().attr('id'));
+
+		if (entryId.includes(':')) {
+			const date = entryId;
+			postEntry(date);
+		} else {
+			getEntry(entryId);
+		}
 	});
 }
 
-//// POST ENTRY FOR TODAY ////
-function postTodayEntry(userId, todaysDate) {
+function getEntry(entryId) {
 	$.ajax({
-		url: `/api/entries/new/${userId}/`,
-		type: 'POST',
+		url: `/api/entries/${entryId}/`,
+		type: 'GET',
 		contentType: 'application/json',
 		dataType: 'json',
-		data: JSON.stringify({ 
-						date: todaysDate, 
-						meal_list: [],
-					}),
-		success: displayTodayEntry,
+		success: displayEntry,
 		error: function(err) {
 			console.log(err);
 		}
 	});
 }
 
-///// DISPLAY ENTRY //////
-function displayTodayEntry(entry) {
-	const todaysDate = moment().startOf('day').toISOString();
-	const todaysEntry = WeeklyEntries['entries'].findIndex(e => e.date === todaysDate);
-	if (todaysEntry === -1) {
-		WeeklyEntries['entries'].push(entry);
+function postEntry(date) {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	$.ajax({
+		url: `/api/entries/new/${userId}/`,
+		type: 'POST',
+		contentType: 'application/json',
+		dataType: 'json',
+		data: JSON.stringify({ 
+						date: date, 
+						meal_list: [],
+					}),
+		success: displayEntry,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+// display entry //
+function displayEntry(entry) {
+	// update WeeklyEntries(used to navigate weekdays)
+	const targetDate = entry.date;
+	const targetEntry = WeeklyEntries.findIndex(e => e.date === targetDate);
+	if (targetEntry === -1) {
+		WeeklyEntries.push(entry);
 	} else {
-		WeeklyEntries['entries'][todaysEntry] = entry;
+		WeeklyEntries[targetEntry] = entry;
 	}
 	TargetEntry = entry;
 
@@ -354,62 +407,65 @@ function handleAddMeal() {
 
 function displayNewMealForm(mealType, mealName) {
 	const mealForm = 
+	`<div class="meal-form-container">
+			<table id="${mealType}-table">
+				<th>dish</th>
+				<th>calories</th>
+				<th>servings</th>
+			</table>
+			<form class="meal-form">
+				<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+				<input type="text" name="calories" class="form-calories" placeholder="300">
+				<input type="text" name="servings" class="form-servings" placeholder="1">
+				<input type="submit" value="+" class="add-meal-btn">
+			</form>
+			<div class="meal-form-err"></div>
+	</div>`
+
+	const ranks = [1, 2, 3, 4, 5];
+	const rankForm = 				
+	`<div class="rank-container">
+		<h4>How would you rate this meal?</h4>
+			<form class="ranking-form" id="${mealType}-rank">
+				${ranks.map((rank) => `
+  				<label class="smilie-${rank}">
+							<input type="radio" name="rank" value="${rank}">
+					</label>
+				`).join('')}
+			</form>
+		<div class="rank-err"></div>
+	</div>`
+
+	const notesForm = 
+	`<div class="notes-container">
+			<h4>Notes:</h4>
+			<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes"></textarea>
+	</div>`
+
+	const timeForm = 
+	`<div class="time-container">
+			<h4>Add Time</h4>
+			<form class="time-form">
+				<input type="time" name="time" id="form-time-${mealType}">
+			</form>
+			<div class="time-err"></div>
+	</div>`
+
+	const template = 
 	 `<h2 class="${mealType}">${mealName}</h2>
 		<button class="close-meal-btn">X</button>
 			<div class="form-left">
-				<div class="meal-form-container">
-					<table id="${mealType}-table">
-						<th>dish</th>
-						<th>calories</th>
-						<th>servings</th>
-					</table>
-					<form class="meal-form">
-						<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-						<input type="text" name="calories" class="form-calories" placeholder="300">
-						<input type="text" name="servings" class="form-servings" placeholder="1">
-						<input type="submit" value="+" class="add-meal-btn">
-					</form>
-					<div class="meal-form-err"></div>
-				</div>
-				<div class="rank-container">
-					<h4>How would you rate this meal?</h4>
-					<form class="ranking-form" id="${mealType}-rank">
-						<label class="smilie-1">
-							<input type="radio" name="rank" value="1">
-						</label>
-						<label class="smilie-2">
-							<input type="radio" name="rank" value="2">
-						</label>
-						<label class="smilie-3">
-							<input type="radio" name="rank" value="3">
-						</label>
-						<label class="smilie-4">
-							<input type="radio" name="rank" value="4">
-						</label>
-						<label class="smilie-5">
-							<input type="radio" name="rank" value="5">
-						</label>
-						<div class="rank-err"></div>
-					</div>
-				</form>
-				<div class="notes-container">
-					<h4>Notes:</h4>
-					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes"></textarea>
-				</div>
+				${mealForm}
+				${rankForm}
+				${notesForm}
 			</div>
 			<div class="form-right">
-				<div class="time-container">
-					<h4>Add Time</h4>
-					<form class="time-form">
-						<input type="time" name="time" id="form-time-${mealType}">
-					</form>
-					<div class="time-err"></div>
-				</div>
+				${timeForm}
 				<img src="">
 				<button type="submit" class="form-save">Save</button>
 			</div>`
 
-	$(`.${mealType}-container`).html(mealForm);
+	$(`.${mealType}-container`).html(template);
 }
 
 function handleCloseMeal() {
@@ -534,8 +590,8 @@ function getMealRequest(entryId, mealId) {
 }
 
 function displayMeal(meal) {
-	const mealTemplate = createMealTemplate(meal.meal_list[0]);
-	const mealType = meal.meal_list[0].mealType;
+	const mealTemplate = createMealTemplate(meal);
+	const mealType = meal.mealType;
 	$(`.${mealType}-container`).html(mealTemplate);
 }
 
@@ -544,7 +600,7 @@ function displayMeal(meal) {
 function handleMealEdit() {
 	$('main').on('click', '.edit-meal', (e) => {
 		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
-		const mealNameInput = $(e.target).closest('.meal-container').find('h2').html();
+		const mealName = $(e.target).closest('.meal-container').find('h2').html();
 
 		const foodList = [];
 		const headers = [];
@@ -662,10 +718,7 @@ function putMealRequest(mealInputs, entryId, mealId) {
 		data: mealInputs,
 		contentType: 'application/json',
 		dataType: 'json',
-		// success: getMealRequest(entryId, mealId),
-		success: function(data) {
-			console.log(data);
-		},
+		success: displayMeal,
 		error: function(err) {
 			console.log(err);
 		}
@@ -673,72 +726,84 @@ function putMealRequest(mealInputs, entryId, mealId) {
 }
 
 function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
-	const foodTable = `${foodList.map(food => 
-											`<tr class="food-items">
-													<td class="dish-cell">${food.dish}</td>
-													<td class="calories-cell">${food.calories}</td>
-													<td class="servings-cell">${food.servings}</td>
-													<td><button class="remove-dish-btn">x</button></td>
-											</tr>`).join("")}`
+	const foodTable = 
+	`${foodList.map(food => 
+			`<tr class="food-items">
+					<td class="dish-cell">${food.dish}</td>
+					<td class="calories-cell">${food.calories}</td>
+					<td class="servings-cell">${food.servings}</td>
+					<td><button class="remove-dish-btn">x</button></td>
+			</tr>`).join("")}`
 
 	const mealForm = 
+	`<div class="meal-form-container">
+			<table id="${mealType}-table">
+				<th>dish</th>
+				<th>calories</th>
+				<th>servings</th>
+				${foodTable}
+			</table>
+			<form class="meal-form">
+				<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+				<input type="text" name="calories" class="form-calories" placeholder="300">
+				<input type="text" name="servings" class="form-servings" placeholder="1">
+				<input type="submit" value="+" class="add-meal-btn">
+			</form>
+		<div class="meal-form-err"></div>
+	</div>`
+
+	const rankForm = 
+	`<div class="rank-container">
+			<h4>How would you rate this meal?</h4>
+			<form class="ranking-form" id="${mealType}-rank">
+				<label class="smilie-1">
+					<input type="radio" name="rank" value="1">
+				</label>
+				<label class="smilie-2">
+					<input type="radio" name="rank" value="2">
+				</label>
+				<label class="smilie-3">
+					<input type="radio" name="rank" value="3">
+				</label>
+				<label class="smilie-4">
+					<input type="radio" name="rank" value="4">
+				</label>
+				<label class="smilie-5">
+					<input type="radio" name="rank" value="5">
+				</label>
+			</form>
+			<div class="rank-err"></div>
+	</div>`
+
+	const notesForm = 
+	`<div class="notes-container">
+			<h4>Notes:</h4>
+			<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes">${notesInput}</textarea>
+	</div>`
+
+	const timeForm = 				
+	`<div class="time-container">
+			<h4>Add Time</h4>
+			<form class="time-form">
+				<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
+			</form>
+			<div class="time-err"></div>
+	</div>`
+
+	const template = 
 	 `<h2 class="${mealType}">${mealName}</h2>
 		<button class="close-edit-btn edit-${mealType}">X</button>
 			<div class="form-left">
-				<div class="meal-form-container">
-					<table id="${mealType}-table">
-						<th>dish</th>
-						<th>calories</th>
-						<th>servings</th>
-						${foodTable}
-					</table>
-					<form class="meal-form">
-						<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-						<input type="text" name="calories" class="form-calories" placeholder="300">
-						<input type="text" name="servings" class="form-servings" placeholder="1">
-						<input type="submit" value="+" class="add-meal-btn">
-					</form>
-					<div class="meal-form-err"></div>
-				</div>
-				<div class="rank-container">
-					<h4>How would you rate this meal?</h4>
-					<form class="ranking-form" id="${mealType}-rank">
-						<label class="smilie-1">
-							<input type="radio" name="rank" value="1">
-						</label>
-						<label class="smilie-2">
-							<input type="radio" name="rank" value="2">
-						</label>
-						<label class="smilie-3">
-							<input type="radio" name="rank" value="3">
-						</label>
-						<label class="smilie-4">
-							<input type="radio" name="rank" value="4">
-						</label>
-						<label class="smilie-5">
-							<input type="radio" name="rank" value="5">
-						</label>
-						<div class="rank-err"></div>
-					</div>
-				</form>
-				<div class="notes-container">
-					<h4>Notes:</h4>
-					<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes">${notesInput}</textarea>
-				</div>
+				${mealForm}
+				${rankForm}
+				${notesForm}
 			</div>
 			<div class="form-right">
-				<div class="time-container">
-					<h4>Add Time</h4>
-					<form class="time-form">
-						<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
-					</form>
-					<div class="time-err"></div>
-				</div>
+				${timeForm}
 				<img src="">
 				<button type="submit" class="edit-save">Save</button>
 			</div>`
-
-	return mealForm;
+	return template;
 }
 
 ///// DELETE MEAL /////

@@ -1,6 +1,23 @@
 let MonthEntries;
 let TargetWeek;
 
+function init() {
+	displayHeader();
+	todayEntryClicked();
+	previousEntryClicked();
+	monthClicked();
+	hideMonthClicked();
+	weekClicked();
+}
+
+function displayHeader() {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const firstname = user.firstname;
+	const template = `<h4>${firstname}'s journal</h4>
+										<a>Log Out<a/>`
+	$('header').html(template);
+}
+
 function todayEntryClicked() {
 	$('.today-entry').click(e => {
 		e.preventDefault();
@@ -100,14 +117,6 @@ function weekClicked() {
 
 function weekOfMonth(date) {
   return date.week() - moment(date).startOf('month').week() + 1;
-}
-
-function init() {
-	todayEntryClicked();
-	previousEntryClicked();
-	monthClicked();
-	hideMonthClicked();
-	weekClicked();
 }
 
 $(init)
