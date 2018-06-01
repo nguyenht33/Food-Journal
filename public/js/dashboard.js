@@ -31,9 +31,16 @@ function previousEntryClicked() {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const userId = user._id;
 	$('.previous-entry').click(e => {
+		$('.calendar').toggleClass('show');
 		getEntries(userId);
 	});
 }
+
+// function hidePreviousEntryClicked() {
+// 	$('main').on('click', '.hide-months', (e) => {
+// 		$('.calendar').toggleClass('show');
+// 	});
+// }
 
 function getEntries(userId) {
 	$.ajax({
@@ -81,7 +88,11 @@ function monthClicked() {
 		weeksNum.forEach(num => {
 			const week = month.filter(e => e.week === num);
 			if (week.length) {
-				const weekObj = {week: num, date: week[0].date};
+				const entryDate = week[0].date;
+				const startDate = moment(entryDate).startOf('week').format('MMMM DD');
+				const endDate = moment(entryDate).endOf('week').format('MMMM DD');
+
+				const weekObj = {week: num, date: week[0].date, startDate: startDate, endDate: endDate};
 				entries.push(weekObj);
 			}
 		});
@@ -90,6 +101,7 @@ function monthClicked() {
 		`${entries.map((entry) => 
 			`<div class="week">
 				<h4>Week ${entry.week}</h4>
+				<p>${entry.startDate} - ${entry.endDate}</p>
 				<input type="button" value=">" id="${entry.date}" class="week-btn">
 			</div>`).join('')}`;
 

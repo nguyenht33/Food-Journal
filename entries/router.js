@@ -66,6 +66,43 @@ router.get('/all/:userId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
+// get an entry by date
+router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
+	let entry;
+	let newEntry;
+
+	Entry
+		.find({ user: req.params.userId, date: req.query.date })		
+		.then(_entry => {
+			if (_entry.length) {
+				entry = _entry;
+				console.log(entry);
+				return res.status(201).send(entry[0]);
+			} else {
+				newEntry = new Entry({ 
+					date: req.query.date, 
+					meal_list: [],
+					user: req.params.userId
+				});
+				return newEntry.save()
+					.then(__entry => {
+						return User.findOne({_id: req.params.userId});
+					})
+					.then(user => {
+						user.entries.push(newEntry);
+						return user.save();
+					})
+					.then(user => {
+						return res.status(201).send(newEntry);
+				})	
+			}
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error' });
+		});
+});
+
 router.get('/months/:userId', jsonParser, jwtAuth, (req, res) => {
 	let entryDates;
 	Entry
@@ -83,22 +120,22 @@ router.get('/months/:userId', jsonParser, jwtAuth, (req, res) => {
 		});
 });
 
-// Get 7 days of entries
-router.get('/week/:userId', jsonParser, jwtAuth, (req, res) => {
-	Entry
-		.find({ user: req.params.userId })
-		.limit(7)
-		.then(entries => {
-			res.status(200).send(entries);
-		})
-		.catch(err => {
-			console.error(err);
-			res.status(500).json({ message: 'Internal server error'});
-		});
-});
+// // Get 7 days of entries
+// router.get('/week/:userId', jsonParser, jwtAuth, (req, res) => {
+// 	Entry
+// 		.find({ user: req.params.userId })
+// 		.limit(7)
+// 		.then(entries => {
+// 			res.status(200).send(entries);
+// 		})
+// 		.catch(err => {
+// 			console.error(err);
+// 			res.status(500).json({ message: 'Internal server error'});
+// 		});
+// });
 
 // Get all entries by date query
-router.get('/date/:userId', jsonParser, jwtAuth, (req, res) => {
+router.get('/week/:userId', jsonParser, jwtAuth, (req, res) => {
 	Entry
 		.find({ user: req.params.userId, 
 						date: { $gte: req.query.startDate, $lte: req.query.endDate } 
@@ -175,7 +212,6 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 
 			if (foundMeal) {
 				return Promise.reject({
-						code: 422,
 						reason: 'ValidationError', 
 						message: 'Meal entry already exists',
 						location: 'meal'

@@ -41,7 +41,7 @@ function getPreviousWeeksEntries(targetWeek) {
 	}
 
 	$.ajax({
-		url: `/api/entries/date/${userId}/`,
+		url: `/api/entries/week/${userId}/`,
 		type: 'GET',
 		data: {
 			startDate: startDate,
@@ -56,22 +56,6 @@ function getPreviousWeeksEntries(targetWeek) {
 	});
 }
 
-function displayPreviousEntries(entries) {
-	WeeklyEntries = entries['entries'];
-
-	// diplays first day of week
-	const dayOfWeek = entries['entries'][0].date;
-	const firstDayOfWeek = moment(dayOfWeek).locale('en-gb').weekday(dayOfWeek).startOf('week').toISOString();
-	const targetEntry = entries['entries'].find(e => e.date === firstDayOfWeek);
-
-	if (targetEntry) {
-		TargetEntry = targetEntry;
-		checkMealList(targetEntry);
-	} else {
-		postEntry(firstDayOfWeek);
-	}
-}
-
 //// GET ENTRIES FOR 7 DAYS ////
 function getThisWeeksEntries() {
 	const user = JSON.parse(localStorage.getItem('user'));
@@ -81,7 +65,7 @@ function getThisWeeksEntries() {
 	const startDate = moment(today).startOf('week').toISOString();
 
 	$.ajax({
-		url: `/api/entries/date/${userId}/`,
+		url: `/api/entries/week/${userId}/`,
 		type: 'GET',
 		data: {
 			startDate: startDate,
@@ -89,7 +73,51 @@ function getThisWeeksEntries() {
 		},
 		contentType: 'application/json',
 		dataType: 'json',
-		success: checkThisWeekEntries,
+		// success: checkThisWeekEntries,
+		success: displayTodayEntry,
+		error: function(err) {
+			console.log(err);
+		}
+	});
+}
+
+function displayTodayEntry(entries) {
+	WeeklyEntries = entries['entries'];
+	const todaysDate = moment().startOf('day').toISOString();
+	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
+
+	if (todaysEntry) {
+		displayEntry(todaysEntry);
+	} else {
+		getEntry(todaysDate);
+	}
+}
+
+function displayPreviousEntries(entries) {
+	WeeklyEntries = entries['entries'];
+
+	// displays first day of week
+	const dayOfWeek = entries['entries'][0].date;
+	const firstDayOfWeek = moment(dayOfWeek).locale('en-gb').weekday(dayOfWeek).startOf('week').toISOString();
+	const targetEntry = entries['entries'].find(e => e.date === firstDayOfWeek);
+
+	if (targetEntry) {
+		displayEntry(targetEntry);
+	} else {
+		getEntry(targetEntry);
+	}
+}
+
+function getEntry(date) {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	$.ajax({
+		url: `/api/entries/date/${userId}/`,
+		type: 'GET',
+		data: { date: date },
+		contentType: 'application/json',
+		dataType: 'json',
+		success: displayEntry,
 		error: function(err) {
 			console.log(err);
 		}
@@ -97,42 +125,42 @@ function getThisWeeksEntries() {
 }
 
 // check if this week has any entries
-function checkThisWeekEntries(entries) {
-	WeeklyEntries = entries['entries'];
-	const today = moment().startOf('day').toISOString();
+// function checkThisWeekEntries(entries) {
+// 	WeeklyEntries = entries['entries'];
+// 	const today = moment().startOf('day').toISOString();
 
-	if (entries) {
-		checkForTodaysEntry(entries);
-	} else {
-		postEntry(today);
-	};
-}
+// 	if (entries) {
+// 		checkForTodaysEntry(entries);
+// 	} else {
+// 		postEntry(today);
+// 	};
+// }
 
 // check for today's entry
-function checkForTodaysEntry(entries) {
-	const todaysDate = moment().startOf('day').toISOString();
-	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
-	TargetEntry = todaysEntry;
+// function checkForTodaysEntry(entries) {
+// 	const todaysDate = moment().startOf('day').toISOString();
+// 	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
+// 	TargetEntry = todaysEntry;
 
-	if (todaysEntry) {
-		checkMealList(todaysEntry);
-	} else {
-		postEntry(todaysDate);
-	}
-}
+// 	if (todaysEntry) {
+// 		checkMealList(todaysEntry);
+// 	} else {
+// 		postEntry(todaysDate);
+// 	}
+// }
 
 // check meal then displays meals if entry exists
-function checkMealList(entry) {
-	const mealList = entry.meal_list;
+// function checkMealList(entry) {
+// 	const mealList = entry.meal_list;
 	
-	if (mealList.length) {
-		displayEntry(entry);
-	} else {
-		displayWeekdaysNav();
-		const emptyMealTemplate = createAllMealsTemplate();
-		$('main').html(emptyMealTemplate);
-	}
-}
+// 	if (mealList.length) {
+// 		displayEntry(entry);
+// 	} else {
+// 		displayWeekdaysNav();
+// 		const emptyMealTemplate = createAllMealsTemplate();
+// 		$('main').html(emptyMealTemplate);
+// 	}
+// }
 
 ///// DISPLAY WEEKDAYS NAV /////
 function displayWeekdaysNav() {
@@ -143,7 +171,11 @@ function displayWeekdaysNav() {
 		let entryList = [];
 		let day = moment(e.date).format('dddd');
 		let date = moment(e.date).format('MMMM DD, YYYY');
-		return entry = {day: day, date: date, iso: e.date, id: e._id};
+		let meal;
+		if (e.meal_list.length) {
+			meal = true;
+		}
+		return entry = { day: day, date: date, iso: e.date, meal: meal };
 	});
 
 	// get all days and dates for this week
@@ -163,11 +195,15 @@ function displayWeekdaysNav() {
 	const latestDay = latestEntry[0].day;
 	const latestIndex = weekArray.findIndex(i => i.day === latestDay);
 
-	// remove dates after today
-	const weekDays = weekDaysArray.slice(0, latestIndex + 1);
-
-	// show targetdate as button
+	// remove dates after today & today from list
+	let weekDays = weekDaysArray.slice(0, latestIndex + 1);
 	const targetDate = weekDays.find(e => e.iso === TargetEntry.date);
+	weekDays.forEach((day, i) => {
+		if (day.date === targetDate.date) {
+			weekDays.splice(i, 1);
+		}
+	})
+
 	const weekDaysTemplate = getWeekDaysTemplate(weekDays, targetDate);
 	$('nav').html(weekDaysTemplate);
 }
@@ -179,7 +215,13 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 			<span>${targetDate.date}</span>
 		</button>
 		<ul class="dropdown-content">
-			${weekDays.map(entry => `<li ${entry.id ? `id="${entry.id}"` : `id="${entry.iso}"`} class="day"><a>${entry.day}</a></li>`).join("")}
+			${weekDays.map(entry => 
+				`${entry.meal ? `
+						<li id="${entry.iso}" class="day"><a>${entry.day}</a></li>
+					` : `
+						<li id="${entry.iso}" class="day gray"><a>${entry.day}</a></li>
+					`}`
+				).join("")}
 		</ul>`;
 }
 
@@ -191,54 +233,36 @@ function handleDropDownClicked() {
 
 function handleDayClicked() {
 	$('nav').on('click', 'a', (e) => {
-		const entryId = ($(e.target).parent().attr('id'));
-
-		if (entryId.includes(':')) {
-			const date = entryId;
-			postEntry(date);
-		} else {
-			getEntry(entryId);
-		}
+		const date = ($(e.target).parent().attr('id'));
+		getEntry(date);
 	});
 }
 
-function getEntry(entryId) {
-	$.ajax({
-		url: `/api/entries/${entryId}/`,
-		type: 'GET',
-		contentType: 'application/json',
-		dataType: 'json',
-		success: displayEntry,
-		error: function(err) {
-			console.log(err);
-		}
-	});
-}
-
-function postEntry(date) {
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
-	$.ajax({
-		url: `/api/entries/new/${userId}/`,
-		type: 'POST',
-		contentType: 'application/json',
-		dataType: 'json',
-		data: JSON.stringify({ 
-						date: date, 
-						meal_list: [],
-					}),
-		success: displayEntry,
-		error: function(err) {
-			console.log(err);
-		}
-	});
-}
+// function postEntry(date) {
+// 	const user = JSON.parse(localStorage.getItem('user'));
+// 	const userId = user._id;
+// 	$.ajax({
+// 		url: `/api/entries/new/${userId}/`,
+// 		type: 'POST',
+// 		contentType: 'application/json',
+// 		dataType: 'json',
+// 		data: JSON.stringify({ 
+// 						date: date, 
+// 						meal_list: [],
+// 					}),
+// 		success: displayEntry,
+// 		error: function(err) {
+// 			console.log(err);
+// 		}
+// 	});
+// }
 
 // display entry //
 function displayEntry(entry) {
 	// update WeeklyEntries(used to navigate weekdays)
 	const targetDate = entry.date;
 	const targetEntry = WeeklyEntries.findIndex(e => e.date === targetDate);
+
 	if (targetEntry === -1) {
 		WeeklyEntries.push(entry);
 	} else {

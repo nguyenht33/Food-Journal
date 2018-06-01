@@ -18,8 +18,15 @@ body {
 	list-style: none;
 }
 
+.calendar {
+	display: none;
+}
+
 .show {
 	display: block;
 }
 
+.gray {
+	color: gainsboro;
+}
 
