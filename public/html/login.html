@@ -2,19 +2,31 @@
 <html>
 	<head>
 		<title>On My Plate</title>
-	</head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="../css/main.css">	</head>
 	<body>
-		<form id='js-login-form'>
-			<div>
-				<label for='username'>username</label>
-				<input type='text' name='username' id='login-user' placeholder='username'>
-			</div>	
-			<div>
-				<label for='password'>password</label>
-				<input type='password' name='password' id='login-pwd' placeholder='password'>
+		<header class="form-header">
+			<a href="/"><img src="../images/logo.svg"></a>
+		</header>
+		<main class="form-main">
+			<div class="signup-container">
+				<h2>Login</h2>
+				<form id='js-login-form'>
+					<div>
+						<label for='username'>username</label>
+						<input type='text' name='username' id='login-user'>
+					</div>	
+					<div>
+						<label for='password'>password</label>
+						<input type='password' name='password' id='login-pwd'>
+					</div>
+					<div>
+						<button type='submit'>Login</button>
+					</div>
+				</form>
 			</div>
-			<button type='submit'>Login</button>
-		</form>
+		</main>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="../js/signin.js"></script>
 	</body>

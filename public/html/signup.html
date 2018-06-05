@@ -2,33 +2,45 @@
 <html>
 <head>
 	<title>On My Plate</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../css/main.css">
 </head>
-	<body>
-		
-		<form id="js-signup-form">
-			<div>
-				<label>username</label>
-				<input type="text" name="username" id="signup-username" placeholder="username">
-			</div>	
-			<div>
-				<label>email</label>
-				<input type="text" name="email" id="signup-email" placeholder="email">
-			</div>	
-			<div>
-				<label>password</label>
-				<input type="text" name="password" id="signup-pwd" placeholder="password">
-			</div>
-			<div>
-				<label>first name</label>
-				<input type="text" name="first name" id="signup-first-name" placeholder="first name">
-			</div>	
-			<div>
-				<label>last name</label>
-				<input type="text" name="last name" id="signup-last-name" placeholder="last name">
-			</div>	
-			<button type="submit">Sign Up</button>
-		</form>
-
+	<body>	
+		<header class="form-header">
+			<a href="/"><img src="../images/logo.svg"></a>
+		</header>
+		<main class="form-main">
+				<div class="login-container">				
+					<h2>Sign Up</h2>
+					<form id="js-signup-form">
+						<div>
+							<label>username</label>
+							<input type="text" name="username" id="signup-username">
+						</div>	
+						<div>
+							<label>email</label>
+							<input type="text" name="email" id="signup-email">
+						</div>	
+						<div>
+							<label>password</label>
+							<input type="text" name="password" id="signup-pwd">
+						</div>
+						<div>
+							<label>first name</label>
+							<input type="text" name="first name" id="signup-first-name">
+						</div>	
+						<div>
+							<label>last name</label>
+							<input type="text" name="last name" id="signup-last-name">
+						</div>	
+						<div>
+							<button type="submit">Sign Up</button>
+						</div>
+					</form>
+								</div>
+				<p>Already have an account? <a href="/login">Login Here</a></p>
+		</main>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="../js/signin.js"></script>
 	</body>

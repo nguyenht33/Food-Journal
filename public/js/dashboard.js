@@ -13,8 +13,10 @@ function init() {
 function displayHeader() {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const firstname = user.firstname;
-	const template = `<h4>${firstname}'s journal</h4>
-										<a>Log Out<a/>`
+	const template = `<div class="header-container">
+											<h4>${firstname}'s journal</h4>
+											<a>log out</a>
+										</div>`
 	$('header').html(template);
 }
 
@@ -35,12 +37,6 @@ function previousEntryClicked() {
 		getEntries(userId);
 	});
 }
-
-// function hidePreviousEntryClicked() {
-// 	$('main').on('click', '.hide-months', (e) => {
-// 		$('.calendar').toggleClass('show');
-// 	});
-// }
 
 function getEntries(userId) {
 	$.ajax({
@@ -100,8 +96,10 @@ function monthClicked() {
 		const weeksTemplate = 
 		`${entries.map((entry) => 
 			`<div class="week">
-				<h4>Week ${entry.week}</h4>
-				<p>${entry.startDate} - ${entry.endDate}</p>
+				<div class="week-left">
+					<h4>Week ${entry.week}</h4>
+					<p>${entry.startDate} - ${entry.endDate}</p>
+				</div>
 				<input type="button" value=">" id="${entry.date}" class="week-btn">
 			</div>`).join('')}`;
 

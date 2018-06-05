@@ -2,15 +2,19 @@
 <html>
 <head>
 	<title>On My Plate</title>
-	<link rel="stylesheet" type="text/css" href="../css/styles.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../css/main.css">
 </head>
 <body>
 	<header>
 	</header>
 	<main>
-		<input type="button" value="Check Today's Entry" class="today-entry">
-		<input type="button" value="Check Previous Entry" class="previous-entry">
-		<div class="calendar"></div>
+		<div class="entry-btn-container">
+			<input type="button" value="Check Today's Entry" class="today-entry">
+			<input type="button" value="Check Previous Entry" class="previous-entry">
+			<div class="calendar"></div>
+		</div>
 	</main>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>

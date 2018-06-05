@@ -73,7 +73,6 @@ function getThisWeeksEntries() {
 		},
 		contentType: 'application/json',
 		dataType: 'json',
-		// success: checkThisWeekEntries,
 		success: displayTodayEntry,
 		error: function(err) {
 			console.log(err);
@@ -124,44 +123,6 @@ function getEntry(date) {
 	});
 }
 
-// check if this week has any entries
-// function checkThisWeekEntries(entries) {
-// 	WeeklyEntries = entries['entries'];
-// 	const today = moment().startOf('day').toISOString();
-
-// 	if (entries) {
-// 		checkForTodaysEntry(entries);
-// 	} else {
-// 		postEntry(today);
-// 	};
-// }
-
-// check for today's entry
-// function checkForTodaysEntry(entries) {
-// 	const todaysDate = moment().startOf('day').toISOString();
-// 	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
-// 	TargetEntry = todaysEntry;
-
-// 	if (todaysEntry) {
-// 		checkMealList(todaysEntry);
-// 	} else {
-// 		postEntry(todaysDate);
-// 	}
-// }
-
-// check meal then displays meals if entry exists
-// function checkMealList(entry) {
-// 	const mealList = entry.meal_list;
-	
-// 	if (mealList.length) {
-// 		displayEntry(entry);
-// 	} else {
-// 		displayWeekdaysNav();
-// 		const emptyMealTemplate = createAllMealsTemplate();
-// 		$('main').html(emptyMealTemplate);
-// 	}
-// }
-
 ///// DISPLAY WEEKDAYS NAV /////
 function displayWeekdaysNav() {
 	const weeklyEntries = WeeklyEntries;
@@ -209,11 +170,16 @@ function displayWeekdaysNav() {
 }
 
 function getWeekDaysTemplate(weekDays, targetDate) {
+	console.log(weekDays)
 	return `
-		<button class="dropdown">
-			${targetDate.day}
-			<span>${targetDate.date}</span>
-		</button>
+		<div class="nav-container">
+			<img src="../images/day-${targetDate.day}.svg" class="day-display">
+			<div class="day-header">
+				<h4>${targetDate.day}</h4>
+				<p>${targetDate.date}</p>
+			</div>
+			<button>v</button>
+		</div>
 		<ul class="dropdown-content">
 			${weekDays.map(entry => 
 				`${entry.meal ? `
@@ -226,7 +192,7 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 }
 
 function handleDropDownClicked() {
-	$('nav').on('click', '.dropdown', (e) => {
+	$('nav').on('click', (e) => {
 		$('.dropdown-content').toggleClass('show');
 	});
 }
@@ -237,25 +203,6 @@ function handleDayClicked() {
 		getEntry(date);
 	});
 }
-
-// function postEntry(date) {
-// 	const user = JSON.parse(localStorage.getItem('user'));
-// 	const userId = user._id;
-// 	$.ajax({
-// 		url: `/api/entries/new/${userId}/`,
-// 		type: 'POST',
-// 		contentType: 'application/json',
-// 		dataType: 'json',
-// 		data: JSON.stringify({ 
-// 						date: date, 
-// 						meal_list: [],
-// 					}),
-// 		success: displayEntry,
-// 		error: function(err) {
-// 			console.log(err);
-// 		}
-// 	});
-// }
 
 // display entry //
 function displayEntry(entry) {
@@ -328,26 +275,43 @@ function createMealTemplate(meal) {
 	});
 
 	const dishes = `
-		<table class="${meal.mealType}-table">
-			<tr>
-				<th>dish</th>
-				<th>calories</th>
-				<th>servings</th>
-			</tr>
+	<div class="${meal.mealType}-table">
+		<div>
+			<div class="dish-row">dish</div>
+			<div class="cal-row">cal</div>
+			<div class="serv-row">serv</div>
+		</div>
+		${foodList.map(food => 
+			`<div>
+					<div class="dish-cell dish-row">${food.dish}</div>
+					<div class="calories-cell cal-row">${food.calories}</div>
+					<div class="servings-cell serv-row">${food.servings}</div>
+			</div>`).join("")}
+	</div>`
 
-			${foodList.map(food => 
-				`<tr>
-						<td class="dish-cell">${food.dish}</td>
-						<td class="calories-cell">${food.calories}</td>
-						<td class="servings-cell">${food.servings}</td>
-				</tr>`).join("")}
-		</table>`
+
+
+	// const dishes = `
+	// 	<table class="${meal.mealType}-table">
+	// 		<tr>
+	// 			<th>dish</th>
+	// 			<th>cal</th>
+	// 			<th>serv</th>
+	// 		</tr>
+
+	// 		${foodList.map(food => 
+	// 			`<tr>
+	// 					<td class="dish-cell">${food.dish}</td>
+	// 					<td class="calories-cell">${food.calories}</td>
+	// 					<td class="servings-cell">${food.servings}</td>
+	// 			</tr>`).join("")}
+	// 	</table>`
 
 	const ranking = `
 		<h4>This meal's ranking</h4>
 		<ul class="ranking">
 			 ${ranks.map((rank) => `
-  				<li><i class="smilie-${rank}"></i></li>
+  				<li><img src="../images/smilie-${rank}.svg" class="smilie-${rank}"></li>
 				`).join('')}
 		</ul>`
 
@@ -360,18 +324,19 @@ function createMealTemplate(meal) {
 
 	const template = 
 		`<div class="meal-container ${meal.mealType}-container">
-			<div class="meal-header">
-				<h2 class="${meal.mealType}" id="${meal._id}">${meal.mealName}</h2>
-				<button class="delete-btn" id="${meal.mealType}-delete">X</button>
-			</div>
-			<div class="meal-left">
-				${dishes}
-				${ranking}
-				${notes}
-			</div>			
-			<div class="meal-right">
-				${time}
-				<input type="button" value="Edit" class="edit-meal">
+			<button class="delete-btn" id="${meal.mealType}-delete">X</button>
+			<h2 class="${meal.mealType}" id="${meal._id}">${meal.mealName}</h2>
+			<div class="meal-content">
+				<div class="meal-left">
+					${dishes}
+					${ranking}
+					${notes}
+				</div>			
+				<div class="meal-right">
+					${time}
+					<img src="../images/meal-${meal.mealName}.svg" class="meal-img">
+					<input type="button" value="Edit" class="edit-meal">
+				</div>
 			</div>
 			<div class="delete-message"></div>
 		</div>`
@@ -380,13 +345,18 @@ function createMealTemplate(meal) {
 
 function createEmptyMealTemplate(type) {
 	let mealName;
-	if (type.indexOf('snack') >= 0) {
-		mealName = 'snack';
+	if (type === 'snack_1') {
+		mealName = 'morning snack';
+	} else if (type === 'snack_2') {
+		mealName = 'afternoon snack';
+	} else if (type === 'snack_3') {
+		mealName = 'evening snack';
 	} else {
 		mealName = type;
 	}
 	return `
-		<div class="meal-container ${type}-container">
+		<div class="meal-container ${type}-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="${type}">${mealName}</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>`
@@ -394,30 +364,38 @@ function createEmptyMealTemplate(type) {
 
 function createAllMealsTemplate() {
 	return `
-		<div class="meal-container breakfast-container">
+	<div class="entries-container">
+		<div class="meal-container breakfast-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="breakfast">Breakfast</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
-		<div class="meal-container snack_1-container">
+		<div class="meal-container snack_1-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="snack_1">Morning Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
-		<div class="meal-container lunch-container">
+		<div class="meal-container lunch-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="lunch">Lunch</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
-		<div class="meal-container snack_2-container">
+		<div class="meal-container snack_2-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="snack_2">Afternoon Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
-		<div class="meal-container dinner-container">
+		<div class="meal-container dinner-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="dinner">Dinner</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
-		<div class="meal-container snack_3-container">
+		<div class="meal-container snack_3-container empty">
+			<img src="../images/meal-empty.svg" class="meal-empty-img">
 			<h2 class="snack_3">Evening Snack</h2>
 			<input type="button" value="+" class="add-meal">
-		</div>`
+		</div>
+	</div>`
 }
 
 //// ADD NEW MEAL /////
@@ -430,21 +408,61 @@ function handleAddMeal() {
 }
 
 function displayNewMealForm(mealType, mealName) {
-	const mealForm = 
+	const mealForm = 	
 	`<div class="meal-form-container">
-			<table id="${mealType}-table">
-				<th>dish</th>
-				<th>calories</th>
-				<th>servings</th>
-			</table>
-			<form class="meal-form">
-				<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-				<input type="text" name="calories" class="form-calories" placeholder="300">
-				<input type="text" name="servings" class="form-servings" placeholder="1">
-				<input type="submit" value="+" class="add-meal-btn">
-			</form>
-			<div class="meal-form-err"></div>
+			<div id="${mealType}-table" class="table">
+				<div class="table-row">
+					<div class="dish-row">dish</div>
+					<div class="cal-row">cal</div>
+					<div class="serv-row">serv</div>
+				</div>
+				<div class="table-row">
+					<form class="meal-form">
+						<div class="dish-row">					
+							<input type="text" name="dish" class="form-dish dish-row" placeholder="sandwich">
+						</div>
+						<div class="cal-row">
+							<input type="text" name="calories" class="form-calories cal-row" placeholder="300">
+						</div>
+						<div class="serv-row">
+							<input type="text" name="servings" class="form-servings serv-row" placeholder="1">
+						</div>
+						</div>
+							<input type="submit" value="+" class="add-meal-btn">
+						</div>
+					</form>
+				</div>
+			</div>
+		<div class="meal-form-err"></div>
 	</div>`
+
+	// const mealForm = 
+	// `<div class="meal-form-container">
+	// 		<table id="${mealType}-table">
+	// 			<tr>
+	// 				<th>dish</th>
+	// 				<th>cal</th>
+	// 				<th>serv</th>
+	// 			</tr>
+	// 			<tr>
+	// 				<td class="dish-cell">
+	// 					<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+	// 				</td>
+	// 				<td class="calories-cell">
+	// 					<input type="text" name="calories" class="form-calories" placeholder="300"></td>
+	// 				<td class="servings-cell">
+	// 					<input type="text" name="servings" class="form-servings" placeholder="1">
+	// 				</td>
+	// 			</tr>
+	// 		</table>
+	// 		<form class="meal-form">
+	// 			<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+	// 			<input type="text" name="calories" class="form-calories" placeholder="300">
+	// 			<input type="text" name="servings" class="form-servings" placeholder="1">
+	// 			<input type="submit" value="+" class="add-meal-btn">
+	// 		</form>
+	// 		<div class="meal-form-err"></div>
+	// </div>`
 
 	const ranks = [1, 2, 3, 4, 5];
 	const rankForm = 				
@@ -478,6 +496,7 @@ function displayNewMealForm(mealType, mealName) {
 	const template = 
 	 `<h2 class="${mealType}">${mealName}</h2>
 		<button class="close-meal-btn">X</button>
+			<div class="meal-content">
 			<div class="form-left">
 				${mealForm}
 				${rankForm}
@@ -485,19 +504,19 @@ function displayNewMealForm(mealType, mealName) {
 			</div>
 			<div class="form-right">
 				${timeForm}
-				<img src="">
 				<button type="submit" class="form-save">Save</button>
+			</div>
 			</div>`
-
+	$(`.${mealType}-container`).toggleClass('empty');
 	$(`.${mealType}-container`).html(template);
 }
 
 function handleCloseMeal() {
 	$('main').on('click', '.close-meal-btn', (e) => {
 		const mealType = $(e.target).siblings('h2').attr('class');
-		const emptyMealTemplate = createEmptyMealTemplate(mealType);
+		const mealTemplate = createEmptyMealTemplate(mealType);
 
-		$(`.${mealType}-container`).html(emptyMealTemplate);
+		$(`.${mealType}-container`).replaceWith(mealTemplate);
 	});
 }
 
@@ -616,7 +635,7 @@ function getMealRequest(entryId, mealId) {
 function displayMeal(meal) {
 	const mealTemplate = createMealTemplate(meal);
 	const mealType = meal.mealType;
-	$(`.${mealType}-container`).html(mealTemplate);
+	$(`.${mealType}-container`).replaceWith(mealTemplate);
 }
 
 
@@ -649,7 +668,6 @@ function handleMealEdit() {
 
 		const notesInput = $(e.target).closest('.meal-container').find('.meal-left p').html();
 		const timeInput =  $(e.target).siblings('h3').html().slice(0, 5);
-
 		displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, timeInput);
 	});
 }
@@ -752,27 +770,39 @@ function putMealRequest(mealInputs, entryId, mealId) {
 function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
 	const foodTable = 
 	`${foodList.map(food => 
-			`<tr class="food-items">
-					<td class="dish-cell">${food.dish}</td>
-					<td class="calories-cell">${food.calories}</td>
-					<td class="servings-cell">${food.servings}</td>
-					<td><button class="remove-dish-btn">x</button></td>
-			</tr>`).join("")}`
+			`<div class="food-items table-row">
+					<div class="dish-cell dish-row">${food.dish}</div>
+					<div class="calories-cell cal-row">${food.cal}</div>
+					<div class="servings-cell serv-row">${food.serv}</div>
+					<div><button class="remove-dish-btn">x</button></div>
+			</div>`).join("")}`
 
 	const mealForm = 
 	`<div class="meal-form-container">
-			<table id="${mealType}-table">
-				<th>dish</th>
-				<th>calories</th>
-				<th>servings</th>
+			<div id="${mealType}-table" class="table">
+				<div class="table-row">
+					<div class="dish-row">dish</div>
+					<div class="cal-row">cal</div>
+					<div class="serv-row">serv</div>
+				</div>
 				${foodTable}
-			</table>
-			<form class="meal-form">
-				<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-				<input type="text" name="calories" class="form-calories" placeholder="300">
-				<input type="text" name="servings" class="form-servings" placeholder="1">
-				<input type="submit" value="+" class="add-meal-btn">
-			</form>
+			</div>
+			<div class="table-row">
+				<form class="meal-form">
+					<div class="dish-row">
+						<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+					</div>
+					<div class="cal-row">
+						<input type="text" name="calories" class="form-calories" placeholder="300">
+					</div>
+					<div class="serv-row">					
+						<input type="text" name="servings" class="form-servings" placeholder="1">
+					</div>
+					<div>
+						<input type="submit" value="+" class="add-meal-btn">
+					</div>
+				</form>
+			</div>
 		<div class="meal-form-err"></div>
 	</div>`
 
@@ -817,15 +847,17 @@ function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInpu
 	const template = 
 	 `<h2 class="${mealType}">${mealName}</h2>
 		<button class="close-edit-btn edit-${mealType}">X</button>
-			<div class="form-left">
-				${mealForm}
-				${rankForm}
-				${notesForm}
-			</div>
-			<div class="form-right">
-				${timeForm}
-				<img src="">
-				<button type="submit" class="edit-save">Save</button>
+			<div class="meal-content">
+				<div class="form-left">
+					${mealForm}
+					${rankForm}
+					${notesForm}
+				</div>
+				<div class="form-right">
+					${timeForm}
+					<img src="">
+					<button type="submit" class="edit-save">Save</button>
+				</div>
 			</div>`
 	return template;
 }
@@ -866,7 +898,7 @@ function deleteMealRequest(entryId, mealId, mealType) {
 
 function displayEmptyMeal(mealType) {
 	const mealTemplate = createEmptyMealTemplate(mealType);
-	$(`.${mealType}-container`).html(mealTemplate);
+	$(`.${mealType}-container`).replaceWith(mealTemplate);
 }
 
 $(init)
