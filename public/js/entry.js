@@ -170,7 +170,6 @@ function displayWeekdaysNav() {
 }
 
 function getWeekDaysTemplate(weekDays, targetDate) {
-	console.log(weekDays)
 	return `
 		<div class="nav-container">
 			<img src="../images/day-${targetDate.day}.svg" class="day-display">
@@ -198,8 +197,8 @@ function handleDropDownClicked() {
 }
 
 function handleDayClicked() {
-	$('nav').on('click', 'a', (e) => {
-		const date = ($(e.target).parent().attr('id'));
+	$('nav').on('click', 'li', (e) => {
+		const date = ($(e.target).attr('id'));
 		getEntry(date);
 	});
 }
@@ -275,37 +274,19 @@ function createMealTemplate(meal) {
 	});
 
 	const dishes = `
-	<div class="${meal.mealType}-table">
-		<div>
-			<div class="dish-row">dish</div>
-			<div class="cal-row">cal</div>
-			<div class="serv-row">serv</div>
+	<div class="${meal.mealType}-table table">
+		<div class="table-row">
+			<div class="dish-row header-row">dish</div>
+			<div class="cal-row header-row">cal</div>
+			<div class="serv-row header-row">serv</div>
 		</div>
 		${foodList.map(food => 
-			`<div>
-					<div class="dish-cell dish-row">${food.dish}</div>
-					<div class="calories-cell cal-row">${food.calories}</div>
-					<div class="servings-cell serv-row">${food.servings}</div>
+			`<div class="table-row food-items">
+					<div class="dish-input dish-row item">${food.dish}</div>
+					<div class="calories-input cal-row item">${food.calories}</div>
+					<div class="servings-input serv-row item">${food.servings}</div>
 			</div>`).join("")}
 	</div>`
-
-
-
-	// const dishes = `
-	// 	<table class="${meal.mealType}-table">
-	// 		<tr>
-	// 			<th>dish</th>
-	// 			<th>cal</th>
-	// 			<th>serv</th>
-	// 		</tr>
-
-	// 		${foodList.map(food => 
-	// 			`<tr>
-	// 					<td class="dish-cell">${food.dish}</td>
-	// 					<td class="calories-cell">${food.calories}</td>
-	// 					<td class="servings-cell">${food.servings}</td>
-	// 			</tr>`).join("")}
-	// 	</table>`
 
 	const ranking = `
 		<h4>This meal's ranking</h4>
@@ -324,6 +305,7 @@ function createMealTemplate(meal) {
 
 	const template = 
 		`<div class="meal-container ${meal.mealType}-container">
+			<div class="delete-message"></div>
 			<button class="delete-btn" id="${meal.mealType}-delete">X</button>
 			<h2 class="${meal.mealType}" id="${meal._id}">${meal.mealName}</h2>
 			<div class="meal-content">
@@ -333,12 +315,13 @@ function createMealTemplate(meal) {
 					${notes}
 				</div>			
 				<div class="meal-right">
-					${time}
-					<img src="../images/meal-${meal.mealName}.svg" class="meal-img">
-					<input type="button" value="Edit" class="edit-meal">
+					<div>
+						${time}
+						<img src="../images/meal-${meal.mealName}.svg" class="meal-img">
+						<input type="button" value="Edit" class="edit-meal">
+					</div>
 				</div>
 			</div>
-			<div class="delete-message"></div>
 		</div>`
 	return template;
 }
@@ -356,7 +339,7 @@ function createEmptyMealTemplate(type) {
 	}
 	return `
 		<div class="meal-container ${type}-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-${mealName}.svg" class="meal-empty-img">
 			<h2 class="${type}">${mealName}</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>`
@@ -366,32 +349,32 @@ function createAllMealsTemplate() {
 	return `
 	<div class="entries-container">
 		<div class="meal-container breakfast-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-breakfast.svg" class="meal-empty-img">
 			<h2 class="breakfast">Breakfast</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_1-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-morning snack.svg" class="meal-empty-img">
 			<h2 class="snack_1">Morning Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container lunch-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-lunch.svg" class="meal-empty-img">
 			<h2 class="lunch">Lunch</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_2-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-afternoon snack.svg" class="meal-empty-img">
 			<h2 class="snack_2">Afternoon Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container dinner-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-dinner.svg" class="meal-empty-img">
 			<h2 class="dinner">Dinner</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
 		<div class="meal-container snack_3-container empty">
-			<img src="../images/meal-empty.svg" class="meal-empty-img">
+			<img src="../images/meal-evening snack.svg" class="meal-empty-img">
 			<h2 class="snack_3">Evening Snack</h2>
 			<input type="button" value="+" class="add-meal">
 		</div>
@@ -412,57 +395,29 @@ function displayNewMealForm(mealType, mealName) {
 	`<div class="meal-form-container">
 			<div id="${mealType}-table" class="table">
 				<div class="table-row">
-					<div class="dish-row">dish</div>
-					<div class="cal-row">cal</div>
-					<div class="serv-row">serv</div>
-				</div>
-				<div class="table-row">
-					<form class="meal-form">
-						<div class="dish-row">					
-							<input type="text" name="dish" class="form-dish dish-row" placeholder="sandwich">
-						</div>
-						<div class="cal-row">
-							<input type="text" name="calories" class="form-calories cal-row" placeholder="300">
-						</div>
-						<div class="serv-row">
-							<input type="text" name="servings" class="form-servings serv-row" placeholder="1">
-						</div>
-						</div>
-							<input type="submit" value="+" class="add-meal-btn">
-						</div>
-					</form>
+					<div class="dish-row header-row">dish</div>
+					<div class="cal-row header-row">cal</div>
+					<div class="serv-row header-row">serv</div>
 				</div>
 			</div>
+			<form class="meal-form">			
+				<div class="table-row">
+					<div class="dish-row">					
+						<input type="text" name="dish" class="form-dish dish-row" placeholder="sandwich">
+					</div>
+					<div class="cal-row">
+						<input type="text" name="calories" class="form-calories cal-row" placeholder="300">
+					</div>
+					<div class="serv-row">
+						<input type="text" name="servings" class="form-servings serv-row" placeholder="1">
+					</div>
+					<div>
+						<input type="submit" value="+" class="add-meal-btn">
+					</div>			
+				</div>
+			</form>
 		<div class="meal-form-err"></div>
 	</div>`
-
-	// const mealForm = 
-	// `<div class="meal-form-container">
-	// 		<table id="${mealType}-table">
-	// 			<tr>
-	// 				<th>dish</th>
-	// 				<th>cal</th>
-	// 				<th>serv</th>
-	// 			</tr>
-	// 			<tr>
-	// 				<td class="dish-cell">
-	// 					<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-	// 				</td>
-	// 				<td class="calories-cell">
-	// 					<input type="text" name="calories" class="form-calories" placeholder="300"></td>
-	// 				<td class="servings-cell">
-	// 					<input type="text" name="servings" class="form-servings" placeholder="1">
-	// 				</td>
-	// 			</tr>
-	// 		</table>
-	// 		<form class="meal-form">
-	// 			<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-	// 			<input type="text" name="calories" class="form-calories" placeholder="300">
-	// 			<input type="text" name="servings" class="form-servings" placeholder="1">
-	// 			<input type="submit" value="+" class="add-meal-btn">
-	// 		</form>
-	// 		<div class="meal-form-err"></div>
-	// </div>`
 
 	const ranks = [1, 2, 3, 4, 5];
 	const rankForm = 				
@@ -470,9 +425,10 @@ function displayNewMealForm(mealType, mealName) {
 		<h4>How would you rate this meal?</h4>
 			<form class="ranking-form" id="${mealType}-rank">
 				${ranks.map((rank) => `
-  				<label class="smilie-${rank}">
-							<input type="radio" name="rank" value="${rank}">
-					</label>
+					<div class="rank-button">					
+					<input type="radio" name="rank" value="${rank}" id="radio-${rank}" class="radio-item">
+  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="../images/smilie-${rank}.svg"></label>
+					</div>
 				`).join('')}
 			</form>
 		<div class="rank-err"></div>
@@ -484,13 +440,15 @@ function displayNewMealForm(mealType, mealName) {
 			<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes"></textarea>
 	</div>`
 
+	const currentTime = moment().format('HH:mm');
 	const timeForm = 
 	`<div class="time-container">
 			<h4>Add Time</h4>
 			<form class="time-form">
-				<input type="time" name="time" id="form-time-${mealType}">
+				<input type="time" name="time" value="${currentTime}" id="form-time-${mealType}">
 			</form>
-			<div class="time-err"></div>
+			<div class="time-err"></div>					
+			<img src="../images/meal-${mealName}.svg" class="meal-img">
 	</div>`
 
 	const template = 
@@ -523,25 +481,25 @@ function handleCloseMeal() {
 function handleAddDish() {
 	$('main').on('click', '.add-meal-btn', (e) => {
 		e.preventDefault();
-		const dishInput = $(e.target).parent().find('input[name="dish"]').val();
-		const caloriesInput = $(e.target).parent().find('input[name="calories"]').val();
-		const servingsInput = $(e.target).parent().find('input[name="servings"]').val();
+		const dishInput = $(e.target).parent().siblings().find('input[name="dish"]').val();
+		const caloriesInput = $(e.target).parent().siblings().find('input[name="calories"]').val();
+		const servingsInput = $(e.target).parent().siblings().find('input[name="servings"]').val();
 		const errorDisplay = $(e.target).closest('.meal-form-container').find('.meal-form-err');
-		const mealsDisplay = $(e.target).closest('.meal-form-container').find('table');
+		const mealsDisplay = $(e.target).closest('.meal-form-container').find('.table');
 
-		if(caloriesInput === '' || servingsInput === '' || dishInput === '') {
+		if (caloriesInput === '' || servingsInput === '' || dishInput === '') {
 			errorDisplay.html('<p>All form input must be filled</p>')
 		} else if (!$.isNumeric(caloriesInput) || !$.isNumeric(servingsInput)) {
 			errorDisplay.html('<p>Calories input and servings input must be numeric</p>')
 		} else if ( $.isNumeric(dishInput)) {
 			errorDisplay.html('<p>Dish input must contains text</p>')
 		} else {
-			mealsDisplay.append(`<tr class="food-items">
-															<td class="dish-cell">${dishInput}</td>
-													 		<td class="calories-cell">${caloriesInput}</td>
-													 		<td class="servings-cell">${servingsInput}</td>
-													 		<td><button class="remove-dish-btn">x</button></td>
-													 </tr>`);
+			mealsDisplay.append(`<div class="food-items table-row">
+															<div class="dish-input dish-row">${dishInput}</div>
+													 		<div class="calories-input cal-row">${caloriesInput}</div>
+													 		<div class="servings-input serv-row">${servingsInput}</div>
+													 		<div><input type="button" value="x" class="remove-dish-btn"></div>
+													 </div>`);
 			$('.meal-form')[0].reset();
 			errorDisplay.empty();
 		}
@@ -550,7 +508,7 @@ function handleAddDish() {
 
 function handleRemoveDish() {
 	$('main').on('click', '.remove-dish-btn', (e) => {
-		$(e.target).closest('tr').remove();
+		$(e.target).closest('.food-items').remove();
 	});
 }
 
@@ -562,9 +520,9 @@ function handleMealSave() {
 
 		let foodList = [];
 		$(`main #${mealType}-table .food-items`).each(function() {
-			const dishes = $(this).find('.dish-cell').html();
-			const calories = $(this).find('.calories-cell').html();
-			const servings = $(this).find('.servings-cell').html();
+			const dishes = $(this).find('.dish-input').html();
+			const calories = $(this).find('.calories-input').html();
+			const servings = $(this).find('.servings-input').html();
 			foodList.push({dish: dishes, calories: calories, servings: servings});
 		})
 
@@ -643,40 +601,41 @@ function displayMeal(meal) {
 function handleMealEdit() {
 	$('main').on('click', '.edit-meal', (e) => {
 		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
+		const mealId = $(e.target).closest('.meal-container').find('h2').attr('id');
 		const mealName = $(e.target).closest('.meal-container').find('h2').html();
 
 		const foodList = [];
 		const headers = [];
-		$(`.${mealType}-table th`).each(function(index, item) {
+		$(`.${mealType}-table .header-row`).each(function(index, item) {
 		    headers[index] = $(item).html();
 		});
-		$(`.${mealType}-table tr`).has('td').each(function() {
+		$(`.${mealType}-table .food-items`).has('.item').each(function() {
 		    let arrayItem = {};
-		    $('td', $(this)).each(function(index, item) {
+		    $('.item', $(this)).each(function(index, item) {
 		        arrayItem[headers[index]] = $(item).html();
 		    });
 		    foodList.push(arrayItem);
 		});
 
 		let rankInput;
-		$(e.target).closest('.meal-container').find('.ranking li i').each((index, item) => {
+		$(e.target).closest('.meal-container').find('.ranking li img').each((index, item) => {
 			let className = $(item).attr('class');
 			if (className.slice(-1) === 'S' ) {
-				rankInput = className.slice(7, -1);
+				rankInput = parseInt(className.slice(7, -1));
 			} 
 		})
 
 		const notesInput = $(e.target).closest('.meal-container').find('.meal-left p').html();
 		const timeInput =  $(e.target).siblings('h3').html().slice(0, 5);
-		displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, timeInput);
+		displayMealEdit(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput);
 	});
 }
 
-function displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
+function displayMealEdit(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput) {
 	const entryId = TargetEntry._id;
-	const mealId = $(`.${mealType}`).attr("id");
+	// const mealId = $(`.${mealType}`).attr("id");
 	const mealCopy = $(`.${mealType}-container`).html();
-	const mealEditTemplate = makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput);
+	const mealEditTemplate = makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput);
 
 	$(`.${mealType}-container`).html(mealEditTemplate);
 
@@ -684,11 +643,14 @@ function displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, ti
 	$(`.edit-${mealType}`).on('click', (e) => {
 		$(e.target).prop("disabled", true);
 		const exitMessage = `<div class="exit-message">
-													<p>Do you want to save changes?</p>
-													<button class="edit-save">yes</button>
-													<button class="edit-close">no</button>
+													<p>Save Changes?</p>
+													<div>
+														<button class="edit-save">yes</button>
+														<button class="edit-close">no</button>
+													</div>
 												</div>`
 		$(`.${mealType}-container`).prepend(exitMessage);
+		$(`.${mealType}-container .exit-message`).addClass('show');
 	});
 
 	// On close
@@ -702,12 +664,108 @@ function displayMealEdit(mealName, mealType, foodList, rankInput, notesInput, ti
 	});
 }
 
+function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput) {
+	const foodTable = 
+	`${foodList.map(food => 
+			`<div class="food-items table-row">
+					<div class="dish-input dish-row">${food.dish}</div>
+					<div class="calories-input cal-row">${food.cal}</div>
+					<div class="servings-input serv-row">${food.serv}</div>
+					<div><input type="button" value="x" class="remove-dish-btn"></div>
+			</div>`).join("")}`
+
+	const mealForm = 
+	`<div class="meal-form-container">
+			<div id="${mealType}-table" class="table">
+				<div class="table-row">
+					<div class="dish-row header-row">dish</div>
+					<div class="cal-row header-row">cal</div>
+					<div class="serv-row header-row">serv</div>
+				</div>
+				${foodTable}
+			</div>				
+			<form class="meal-form">
+				<div class="table-row">
+					<div class="dish-row">
+						<input type="text" name="dish" class="form-dish" placeholder="sandwich">
+					</div>
+					<div class="cal-row">
+						<input type="text" name="calories" class="form-calories" placeholder="300">
+					</div>
+					<div class="serv-row">					
+						<input type="text" name="servings" class="form-servings" placeholder="1">
+					</div>
+					<div>
+						<input type="submit" value="+" class="add-meal-btn">
+					</div>
+				</div>				
+			</form>
+		<div class="meal-form-err"></div>
+	</div>`
+
+	let ranks = {};
+	const numbers = [1, 2, 3, 4, 5];
+	numbers.forEach(number => {
+		if (number === rankInput) {
+			ranks[number] = true;
+		} else {
+			ranks[number] = false;
+		}
+	})
+
+	const rankForm = 				
+	`<div class="rank-container">
+		<h4>How would you rate this meal?</h4>
+			<form class="ranking-form" id="${mealType}-rank">
+				${Object.keys(ranks).map((rank) => `
+					<div class="rank-button">					
+					<input type="radio" name="rank" value="${rank}" id="radio-${rank}" class="radio-item" ${ranks[rank] ? 'checked' : ''}>
+  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="../images/smilie-${rank}.svg"></label>
+					</div>
+				`).join('')}
+			</form>
+		<div class="rank-err"></div>
+	</div>`
+
+	const notesForm = 
+	`<div class="notes-container">
+			<h4>Notes:</h4>
+			<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes">${notesInput}</textarea>
+	</div>`
+
+	const timeForm = 				
+	`<div class="time-container">
+			<h4>Add Time</h4>
+			<form class="time-form">
+				<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
+			</form>
+			<div class="time-err"></div>
+			<img src="../images/meal-${mealName}.svg" class="meal-img">
+	</div>`
+
+	const template = 
+	 `<h2 class="${mealType}" id="${mealId}">${mealName}</h2>
+		<button class="close-edit-btn edit-${mealType}">X</button>
+			<div class="meal-content">
+				<div class="form-left">
+					${mealForm}
+					${rankForm}
+					${notesForm}
+				</div>
+				<div class="form-right">
+					${timeForm}
+					<button type="submit" class="edit-save">Save</button>
+				</div>
+			</div>`
+	return template;
+}
+
 function handleEditSave(mealName, mealType, entryId, mealId) {
 	let foodList = [];
 	$(`main #${mealType}-table .food-items`).each(function() {
-		const dishes = $(this).find('.dish-cell').html();
-		const calories = $(this).find('.calories-cell').html();
-		const servings = $(this).find('.servings-cell').html();
+		const dishes = $(this).find('.dish-input').html();
+		const calories = $(this).find('.calories-input').html();
+		const servings = $(this).find('.servings-input').html();
 		foodList.push({dish: dishes, calories: calories, servings: servings});
 	})
 
@@ -736,12 +794,13 @@ function handleEditSave(mealName, mealType, entryId, mealId) {
 		$(`.edit-${mealType}`).prop("disabled", false);
 		$(`main .${mealType}-container .time-err`).html('<p>Please fill out time</p>')
 	} else {
-		const mealRank = rankInput;
+		const mealRank = parseInt(rankInput);
 		const currentTime = moment(timeInput, 'HH:mm A').toISOString();
 		const time = date.slice(0, -13).concat(currentTime.slice(-13));
 		const	mealTime = moment(time).format('hh:mm A');
 
 		const mealInputs = JSON.stringify({
+			_id: mealId,
 			mealName: mealName,
 			mealType: mealType, 
 			time: time,
@@ -767,111 +826,19 @@ function putMealRequest(mealInputs, entryId, mealId) {
 	});
 }
 
-function makeMealEditTemplate(mealName, mealType, foodList, rankInput, notesInput, timeInput) {
-	const foodTable = 
-	`${foodList.map(food => 
-			`<div class="food-items table-row">
-					<div class="dish-cell dish-row">${food.dish}</div>
-					<div class="calories-cell cal-row">${food.cal}</div>
-					<div class="servings-cell serv-row">${food.serv}</div>
-					<div><button class="remove-dish-btn">x</button></div>
-			</div>`).join("")}`
-
-	const mealForm = 
-	`<div class="meal-form-container">
-			<div id="${mealType}-table" class="table">
-				<div class="table-row">
-					<div class="dish-row">dish</div>
-					<div class="cal-row">cal</div>
-					<div class="serv-row">serv</div>
-				</div>
-				${foodTable}
-			</div>
-			<div class="table-row">
-				<form class="meal-form">
-					<div class="dish-row">
-						<input type="text" name="dish" class="form-dish" placeholder="sandwich">
-					</div>
-					<div class="cal-row">
-						<input type="text" name="calories" class="form-calories" placeholder="300">
-					</div>
-					<div class="serv-row">					
-						<input type="text" name="servings" class="form-servings" placeholder="1">
-					</div>
-					<div>
-						<input type="submit" value="+" class="add-meal-btn">
-					</div>
-				</form>
-			</div>
-		<div class="meal-form-err"></div>
-	</div>`
-
-	const rankForm = 
-	`<div class="rank-container">
-			<h4>How would you rate this meal?</h4>
-			<form class="ranking-form" id="${mealType}-rank">
-				<label class="smilie-1">
-					<input type="radio" name="rank" value="1">
-				</label>
-				<label class="smilie-2">
-					<input type="radio" name="rank" value="2">
-				</label>
-				<label class="smilie-3">
-					<input type="radio" name="rank" value="3">
-				</label>
-				<label class="smilie-4">
-					<input type="radio" name="rank" value="4">
-				</label>
-				<label class="smilie-5">
-					<input type="radio" name="rank" value="5">
-				</label>
-			</form>
-			<div class="rank-err"></div>
-	</div>`
-
-	const notesForm = 
-	`<div class="notes-container">
-			<h4>Notes:</h4>
-			<textarea name="notes" rows="4" cols="50" maxlength=250 id="${mealType}-notes">${notesInput}</textarea>
-	</div>`
-
-	const timeForm = 				
-	`<div class="time-container">
-			<h4>Add Time</h4>
-			<form class="time-form">
-				<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
-			</form>
-			<div class="time-err"></div>
-	</div>`
-
-	const template = 
-	 `<h2 class="${mealType}">${mealName}</h2>
-		<button class="close-edit-btn edit-${mealType}">X</button>
-			<div class="meal-content">
-				<div class="form-left">
-					${mealForm}
-					${rankForm}
-					${notesForm}
-				</div>
-				<div class="form-right">
-					${timeForm}
-					<img src="">
-					<button type="submit" class="edit-save">Save</button>
-				</div>
-			</div>`
-	return template;
-}
-
 ///// DELETE MEAL /////
 function handleMealDelete() {
 	$('main').on('click', '.delete-btn', (e) => {
 		const entryId = TargetEntry._id;
 		const mealId = $(e.target).siblings('h2').attr('id');
 		const mealType = $(e.target).siblings('h2').attr('class');
-		const deleteMessage = `<p>Do you want to remove this meal?</p>
-													<button class="delete-yes">yes</button>
-													<button class="delete-no">no</button>`
+		const deleteMessage = `<p>Remove Meal?</p>
+														<div>
+																<button class="delete-yes">yes</button>
+																<button class="delete-no">no</button>
+														</div>`
 		$(`.${mealType}-container .delete-message`).html(deleteMessage);
+		$(`.${mealType}-container .delete-message`).addClass('show-message');							
 
 		$(`.${mealType}-container`).on('click', '.delete-yes', (e) => {
 			deleteMealRequest(entryId, mealId, mealType);
@@ -879,6 +846,7 @@ function handleMealDelete() {
 
 		$(`.${mealType}-container`).on('click', '.delete-no',(e) => {
 			$(`.${mealType}-container .delete-message`).html('');
+			$(`.${mealType}-container .delete-message`).removeClass('show-message');	
 		});
 	});
 }

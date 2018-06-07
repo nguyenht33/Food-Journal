@@ -232,7 +232,7 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 
 // Update a meal entry
 router.put('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
-	const { mealName, mealType, time, food, rank, notes } = req.body;
+	const { _id, mealName, mealType, time, food, rank, notes } = req.body;
 
 	Entry
 		.findOneAndUpdate(
@@ -247,7 +247,7 @@ router.put('/meals/:entryId/:mealId', jsonParser, jwtAuth, (req, res) => {
 							}
 		})
 		.then(entry => {
-			res.status(200).send({ mealName, mealType, time, food, rank, notes });
+			res.status(200).send({ _id, mealName, mealType, time, food, rank, notes });
 		})
 		.catch(err => {
 			console.error(err);

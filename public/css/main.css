@@ -252,13 +252,7 @@ main {
 	margin-top: 20px;
 }
 
-
-
-
-
-
-
-
+/*entry*/
 .entry-btn-container {
   padding: 10px;
 }
@@ -411,6 +405,10 @@ nav button {
 	background-color: #99cccc;
 }
 
+.dropdown-content li:hover {
+	background-color: white;
+}
+
 /*.gray {
 	color: gainsboro;
 }
@@ -425,7 +423,7 @@ nav button {
 .meal-container {
 	position: relative;
 	background-color: rgba(204,255,204, .5);
-	padding: 10px 0px 15px 10px;
+	padding: 10px;
 	margin-bottom: 10px;
 	-webkit-box-shadow: 0px 4px 9px -2px rgba(110,110,110,0.17);
 	-moz-box-shadow: 0px 4px 9px -2px rgba(110,110,110,0.17);
@@ -440,12 +438,13 @@ nav button {
 }
 
 .meal-content {
+	width: 100%;
 	display: flex;
 	justify-content: space-between;
 	padding-left: 2px;
 }
 
-.delete-btn, .close-meal-btn  {
+.delete-btn, .close-meal-btn, .close-edit-btn  {
 	position: absolute;
 	top: 2px;
 	right: 2px;
@@ -455,80 +454,212 @@ nav button {
 	border: none;
 }
 
+.table {
+	margin-bottom: 8px;
+}
+
 .meal-left, .form-left {
 	width: 70%;
 	padding-right: 10px;
 	border-right: 1px solid #999999;
 }
 
-table {
-	width: 100%;
-	margin-bottom: 5px;
-}
-
-th {
+.meal-left h4, .form-left h4, .form-right h4, .header-row {
 	font-size: 16px;
-	text-transform: capitalize;
-	font-weight: 600;
-	color: #003333;
-	padding-bottom: 4px;
-}
-
-td {
-	padding: 2px;
-}
-
-tr > th,  tr > td {
-	margin-right: 20px;
-	vertical-align: middle;
-	text-align: right;
-}
-
-tr > th:first-child, tr > td:first-child {
-	margin-right: 20px;
-	vertical-align: left;
-	text-align: left;
-}
-
-.meal-left h4 {
-	font-size: 17px;
 	font-weight: bold;
 	color: #003333;
+	margin-bottom: 3px;
 }
 
-.meal-left ul {
-	padding: 5px 0px;
+.header-row {
+	text-transform: capitalize;
+}
+
+.dish-row {
+	width: 65%;
+}
+
+.dish-input {
+	text-transform: capitalize;
+}
+
+.serv-row {
+	width: 10%;
+	text-align: center;
+}
+
+.cal-row {
+	width: 15%;
+	text-align: center;
+}
+
+.calories-input, .servings-input {
+	text-align: center;
+}
+
+.dish-row > input, .cal-row > input, .serv-row > input {
+	height: 18px;
+	width: 100%;
+}
+
+.dish-input, .cal-input, .serv-input {
+	margin-bottom: 2px;
+}
+
+.food-items	{
+	display: flex;
+	align-items: center;
+}
+
+.food-items > .dish-row:before {
+	content: '- ';
+}
+
+.meal-form-container {
+	width: 100%;
+}
+
+.meal-form-container > .table {
+	margin: 0;
+}
+
+.table-row {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 2px;
+}
+
+.add-meal-btn, .remove-dish-btn {
+	width: 24px;
+	height: 24px;
+	font-size: 20px;
+	color: #CC6666;
+	background-color: white;
+	border: .5px solid #A9A9A9;
+	margin-left: 3px;
+	text-align: center;
+}
+
+.remove-dish-btn {
+	font-size: 20px;
+	background-color: transparent;
+	border: none;
+}
+
+.ranking, .ranking-form {
+	padding: 0px 0px 3px 3px;
 }
 
 .ranking li {
 	display: inline;
 }
 
+.ranking-form {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
 .ranking img {
-	width: 20px;
-	height: 20px;
+	width: 22px;
+	height: 22px;
+	background-color: white;
+	border-radius: 50%;
+}
+
+.rank-button {
+	position: relative;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background-color: white;
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+.radio-item {
+  display:none;
+  visibility:hidden;
+}
+
+.label-item {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+
+.label-item img {
+	width: 100%;
+	position: relative;
+	z-index: 1;
+}
+
+.radio-item:checked + label {
+	background-color: yellow;
+}
+
+.notes-container {
+	width: 89%;
+}
+
+.notes-container > textarea {
+	width: 100%;
+}
+
+.meal-left p {
+	font-size: 15px;
+	padding: 3px 0;
+}
+
+.meal-left p:before {
+	content: '- ';
 }
 
 .meal-right, .form-right {
+	position: relative;
 	width: 25%;
+	display: flex;
+	flex-direction: column;
+	align-content: stretch;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.meal-right > div, .form-right > div {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0px 10px;
 }
 
 .meal-right h3 {
-	font-size: 20px;
+	font-size: 110%;
+	font-weight: 600;
+	color: #006666;
+}
+
+.time-container {
+	width: 80%;
+}
+
+.time-container h4 {
+	margin-bottom: 5px;
+	text-align: center;
+}
+
+.time-form input {
+	width: 90%;
 }
 
 .meal-img {
-	width: 90px;
-	height: 90px;
+	width: 80px;
+	height: 80px;
 	margin: 10px 0px;
 }
 
-.edit-meal, .form-save {
+.edit-meal, .form-save, .edit-save {
 	padding: 6px 15px;
 	background-color: #cc6666;
 	border: none;
@@ -536,14 +667,39 @@ tr > th:first-child, tr > td:first-child {
 	font-size: 14px;
 }
 
-.meal-form {
+.delete-message, .exit-message {
+	display: none;
 	width: 100%;
-	float: left;
+	padding: 5px;
+	text-align: center;
+	background: rgba(207,232,204,1);
+	background: -moz-linear-gradient(left, rgba(207,232,204,1) 0%, rgba(255,255,255,1) 52%, rgba(207,232,204,1) 100%);
+	background: -webkit-gradient(left top, right top, color-stop(0%, rgba(207,232,204,1)), color-stop(52%, rgba(255,255,255,1)), color-stop(100%, rgba(207,232,204,1)));
+	background: -webkit-linear-gradient(left, rgba(207,232,204,1) 0%, rgba(255,255,255,1) 52%, rgba(207,232,204,1) 100%);
+	background: -o-linear-gradient(left, rgba(207,232,204,1) 0%, rgba(255,255,255,1) 52%, rgba(207,232,204,1) 100%);
+	background: -ms-linear-gradient(left, rgba(207,232,204,1) 0%, rgba(255,255,255,1) 52%, rgba(207,232,204,1) 100%);
+	background: linear-gradient(to right, rgba(207,232,204,1) 0%, rgba(255,255,255,1) 52%, rgba(207,232,204,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cfe8cc', endColorstr='#cfe8cc', GradientType=1 );
 }
 
-/*.meal-form input[type=text] {
-	width: 35%;
-}*/
+.delete-message p , .exit-message p {
+	margin-bottom: 4px;
+}
+
+.show-message {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.delete-message button, .exit-message button {
+	font-size: 12px;
+	color: white;
+	width: 40px;
+	padding: 4px 8px;
+	background-color: #cc6666;
+	border: none;
+}
 
 .empty {
 	position: relative;
@@ -570,7 +726,7 @@ tr > th:first-child, tr > td:first-child {
 
 .empty input[type=button] {
 	position: absolute;
-	right: 10px;
+	right: 5px;
 	font-weight: 200;
 	font-size: 50px;
 	background-color: transparent;
@@ -578,17 +734,19 @@ tr > th:first-child, tr > td:first-child {
 	border: none;
 }
 
+.empty input[type=button]:hover {
+	color: #669966;
+} 
 
-
-
-
-
-
-
-
-.close-edit-btn {
-	background-color: green;
+.empty img {
+	opacity: .7;
 }
+
+
+
+
+
+
 
 
 
