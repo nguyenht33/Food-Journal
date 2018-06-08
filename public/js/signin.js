@@ -15,8 +15,7 @@ function makeLoginRequest(username, password) {
 }
 
 function loginError(err) {
-	console.log(err);
-	alert('Incorrect username or password ');
+	$('.login-err').html(`<p>Incorrect username or password</p>`)
 }
 
 function loginSuccess(res) {
@@ -31,7 +30,7 @@ function handleLoginSubmit() {
 					password = $('#login-pwd').val();
 
 		if (username === '' || password === '') {
-			alert('please enter username and password');
+			$('.login-err').html(`<p>Please enter username and password</p>`)
 		} else {
 			makeLoginRequest(username, password);
 		}
@@ -73,7 +72,7 @@ function handleSignupSubmit() {
 					lastname = $('#signup-last-name').val(),
 					firstname = $('#signup-first-name').val();
 		if (username === '' || email === '' || password === '' || firstname ==='' || lastname ==='') {
-			alert('Please fill out all required field');
+			$('.login-err').html(`<p>Please fill out all forms</p>`)
 		} else {
 			makeSignupRequest(username, email, password, firstname, lastname);
 		}

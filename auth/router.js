@@ -43,6 +43,12 @@ router.post('/login', localAuth, (req, res) => {
     });
 });
 
+router.get('/logout', (req, res) => {
+  req.cookie('authToken', authToken);
+  req.clearCookie('authToken');
+  res.redirect('../')
+})
+
 const jwtAuth = passport.authenticate('jwt', {session: false});
 
 // The user exchanges a valid JWT for a new one with a later expiration

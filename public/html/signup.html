@@ -16,24 +16,25 @@
 					<form id="js-signup-form">
 						<div>
 							<label>username</label>
-							<input type="text" name="username" id="signup-username">
+							<input required type="text" name="username" pattern="[A-Za-z]{4}" required title="Username must be 4 characters minimum" id="signup-username">
 						</div>	
 						<div>
 							<label>email</label>
-							<input type="text" name="email" id="signup-email">
+							<input required type="email" name="email" id="signup-email">
 						</div>	
 						<div>
 							<label>password</label>
-							<input type="password" name="password" id="signup-pwd">
+							<input required type="password" name="password" pattern=".{6,}" required title="Password must be 6 characters minimum" id="signup-pwd">
 						</div>
 						<div>
 							<label>first name</label>
-							<input type="text" name="first name" id="signup-first-name">
+							<input required type="text" name="first name" id="signup-first-name">
 						</div>	
 						<div>
 							<label>last name</label>
-							<input type="text" name="last name" id="signup-last-name">
+							<input required type="text" name="last name" id="signup-last-name">
 						</div>	
+						<div class="signin-err"></div>
 						<div>
 							<button type="submit">Sign Up</button>
 						</div>

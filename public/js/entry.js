@@ -177,7 +177,7 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 				<h4>${targetDate.day}</h4>
 				<p>${targetDate.date}</p>
 			</div>
-			<button>v</button>
+			<button><i class="icon-drop"></i></button>
 		</div>
 		<ul class="dropdown-content">
 			${weekDays.map(entry => 
@@ -306,7 +306,7 @@ function createMealTemplate(meal) {
 	const template = 
 		`<div class="meal-container ${meal.mealType}-container">
 			<div class="delete-message"></div>
-			<button class="delete-btn" id="${meal.mealType}-delete">X</button>
+			<button class="delete-btn" id="${meal.mealType}-delete"><i class="icon-close"></i></button>
 			<h2 class="${meal.mealType}" id="${meal._id}">${meal.mealName}</h2>
 			<div class="meal-content">
 				<div class="meal-left">
@@ -341,7 +341,7 @@ function createEmptyMealTemplate(type) {
 		<div class="meal-container ${type}-container empty">
 			<img src="../images/meal-${mealName}.svg" class="meal-empty-img">
 			<h2 class="${type}">${mealName}</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>`
 }
 
@@ -351,32 +351,32 @@ function createAllMealsTemplate() {
 		<div class="meal-container breakfast-container empty">
 			<img src="../images/meal-breakfast.svg" class="meal-empty-img">
 			<h2 class="breakfast">Breakfast</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_1-container empty">
 			<img src="../images/meal-morning snack.svg" class="meal-empty-img">
 			<h2 class="snack_1">Morning Snack</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container lunch-container empty">
 			<img src="../images/meal-lunch.svg" class="meal-empty-img">
 			<h2 class="lunch">Lunch</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_2-container empty">
 			<img src="../images/meal-afternoon snack.svg" class="meal-empty-img">
 			<h2 class="snack_2">Afternoon Snack</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container dinner-container empty">
 			<img src="../images/meal-dinner.svg" class="meal-empty-img">
 			<h2 class="dinner">Dinner</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_3-container empty">
 			<img src="../images/meal-evening snack.svg" class="meal-empty-img">
 			<h2 class="snack_3">Evening Snack</h2>
-			<input type="button" value="+" class="add-meal">
+			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 	</div>`
 }
@@ -384,8 +384,9 @@ function createAllMealsTemplate() {
 //// ADD NEW MEAL /////
 function handleAddMeal() {
 	$('main').on('click', '.add-meal', (e) => {
-		const mealType = $(e.target).siblings('h2').attr('class');
-		const mealName = $(e.target).siblings('h2').html();
+		const mealType = $(e.target).parent().siblings('h2').attr('class');
+		const mealName = $(e.target).parent().siblings('h2').html();
+		console.log(mealType)
 		displayNewMealForm(mealType, mealName);
 	});
 }
@@ -412,7 +413,7 @@ function displayNewMealForm(mealType, mealName) {
 						<input type="text" name="servings" class="form-servings serv-row" placeholder="1">
 					</div>
 					<div>
-						<input type="submit" value="+" class="add-meal-btn">
+						<button class="add-meal-btn"><i class="icon-plus"></i></button>
 					</div>			
 				</div>
 			</form>
@@ -453,7 +454,7 @@ function displayNewMealForm(mealType, mealName) {
 
 	const template = 
 	 `<h2 class="${mealType}">${mealName}</h2>
-		<button class="close-meal-btn">X</button>
+		<button class="close-meal-btn"><i class="icon-close"></i></button>
 			<div class="meal-content">
 			<div class="form-left">
 				${mealForm}
@@ -471,7 +472,7 @@ function displayNewMealForm(mealType, mealName) {
 
 function handleCloseMeal() {
 	$('main').on('click', '.close-meal-btn', (e) => {
-		const mealType = $(e.target).siblings('h2').attr('class');
+		const mealType = $(e.target).parent().siblings('h2').attr('class');
 		const mealTemplate = createEmptyMealTemplate(mealType);
 
 		$(`.${mealType}-container`).replaceWith(mealTemplate);
@@ -481,14 +482,14 @@ function handleCloseMeal() {
 function handleAddDish() {
 	$('main').on('click', '.add-meal-btn', (e) => {
 		e.preventDefault();
-		const dishInput = $(e.target).parent().siblings().find('input[name="dish"]').val();
-		const caloriesInput = $(e.target).parent().siblings().find('input[name="calories"]').val();
-		const servingsInput = $(e.target).parent().siblings().find('input[name="servings"]').val();
+		const dishInput = $(e.target).closest('.table-row').find('input[name="dish"]').val();
+		const caloriesInput = $(e.target).closest('.table-row').find('input[name="calories"]').val();
+		const servingsInput = $(e.target).closest('.table-row').find('input[name="servings"]').val();
 		const errorDisplay = $(e.target).closest('.meal-form-container').find('.meal-form-err');
 		const mealsDisplay = $(e.target).closest('.meal-form-container').find('.table');
 
 		if (caloriesInput === '' || servingsInput === '' || dishInput === '') {
-			errorDisplay.html('<p>All form input must be filled</p>')
+			errorDisplay.html('<p>Please fill out all form above</p>')
 		} else if (!$.isNumeric(caloriesInput) || !$.isNumeric(servingsInput)) {
 			errorDisplay.html('<p>Calories input and servings input must be numeric</p>')
 		} else if ( $.isNumeric(dishInput)) {
@@ -498,7 +499,7 @@ function handleAddDish() {
 															<div class="dish-input dish-row">${dishInput}</div>
 													 		<div class="calories-input cal-row">${caloriesInput}</div>
 													 		<div class="servings-input serv-row">${servingsInput}</div>
-													 		<div><input type="button" value="x" class="remove-dish-btn"></div>
+													 		<div><button class="remove-dish-btn"><i class="icon-delete"></i></button></div>
 													 </div>`);
 			$('.meal-form')[0].reset();
 			errorDisplay.empty();
@@ -671,7 +672,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 					<div class="dish-input dish-row">${food.dish}</div>
 					<div class="calories-input cal-row">${food.cal}</div>
 					<div class="servings-input serv-row">${food.serv}</div>
-					<div><input type="button" value="x" class="remove-dish-btn"></div>
+					<div><button class="remove-dish-btn"><i class="icon-close"></i></button></div>
 			</div>`).join("")}`
 
 	const mealForm = 
@@ -696,7 +697,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 						<input type="text" name="servings" class="form-servings" placeholder="1">
 					</div>
 					<div>
-						<input type="submit" value="+" class="add-meal-btn">
+						<button class="add-meal-btn"><i class="icon-plus"></i></button>
 					</div>
 				</div>				
 			</form>
@@ -745,7 +746,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 
 	const template = 
 	 `<h2 class="${mealType}" id="${mealId}">${mealName}</h2>
-		<button class="close-edit-btn edit-${mealType}">X</button>
+		<button class="close-edit-btn edit-${mealType}"><i class="icon-close"></i></button>
 			<div class="meal-content">
 				<div class="form-left">
 					${mealForm}
@@ -830,8 +831,8 @@ function putMealRequest(mealInputs, entryId, mealId) {
 function handleMealDelete() {
 	$('main').on('click', '.delete-btn', (e) => {
 		const entryId = TargetEntry._id;
-		const mealId = $(e.target).siblings('h2').attr('id');
-		const mealType = $(e.target).siblings('h2').attr('class');
+		const mealId = $(e.target).parent().siblings('h2').attr('id');
+		const mealType = $(e.target).parent().siblings('h2').attr('class');
 		const deleteMessage = `<p>Remove Meal?</p>
 														<div>
 																<button class="delete-yes">yes</button>
