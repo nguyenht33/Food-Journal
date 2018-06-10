@@ -1,5 +1,5 @@
-let WeeklyEntries; // store entries for one week, use to navigate weekdays nav
-let TargetEntry; // store one entry, use to display selected weekday
+let WEEKLYENTRIES; // store entries for one week, use to navigate weekdays nav
+let TARGETENTRY; // store one entry, use to display selected weekday
 
 function init() {
 	displayHeader();
@@ -51,7 +51,7 @@ function getPreviousWeeksEntries(targetWeek) {
 		dataType: 'json',
 		success: displayPreviousEntries,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
@@ -75,13 +75,13 @@ function getThisWeeksEntries() {
 		dataType: 'json',
 		success: displayTodayEntry,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
 
 function displayTodayEntry(entries) {
-	WeeklyEntries = entries['entries'];
+	WEEKLYENTRIES = entries['entries'];
 	const todaysDate = moment().startOf('day').toISOString();
 	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
 
@@ -93,7 +93,7 @@ function displayTodayEntry(entries) {
 }
 
 function displayPreviousEntries(entries) {
-	WeeklyEntries = entries['entries'];
+	WEEKLYENTRIES = entries['entries'];
 
 	// displays first day of week
 	const dayOfWeek = entries['entries'][0].date;
@@ -103,7 +103,7 @@ function displayPreviousEntries(entries) {
 	if (targetEntry) {
 		displayEntry(targetEntry);
 	} else {
-		getEntry(targetEntry);
+		getEntry(firstDayOfWeek);
 	}
 }
 
@@ -118,15 +118,17 @@ function getEntry(date) {
 		dataType: 'json',
 		success: displayEntry,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
 
 ///// DISPLAY WEEKDAYS NAV /////
 function displayWeekdaysNav() {
-	const weeklyEntries = WeeklyEntries;
-	// get all entries available for this week
+	const weeklyEntries = WEEKLYENTRIES;
+	const targetEntry = TARGETENTRY;
+
+	// get all entries available for this week 
 	const entries = weeklyEntries.map(e => {
 		let entry = {};
 		let entryList = [];
@@ -139,12 +141,14 @@ function displayWeekdaysNav() {
 		return entry = { day: day, date: date, iso: e.date, meal: meal };
 	});
 
+	const targetIsoDate = TARGETENTRY.date;
+
 	// get all days and dates for this week
 	const daysIndex = [0, 1, 2, 3, 4, 5, 6];
 	const weekArray = daysIndex.map(dow => {
-											let day = moment().locale('en-gb').weekday(dow).format('dddd');
-											let date = moment().locale('en-gb').weekday(dow).format('MMMM DD, YYYY');
-											let iso = moment().locale('en-gb').weekday(dow).startOf('day').toISOString();
+											let day = moment(targetIsoDate).locale('en-gb').weekday(dow).format('dddd');
+											let date = moment(targetIsoDate).locale('en-gb').weekday(dow).format('MMMM DD, YYYY');
+											let iso = moment(targetIsoDate).locale('en-gb').weekday(dow).startOf('day').toISOString();
 
 											entry = {day: day, date: date, iso: iso};
 											return entry;
@@ -152,13 +156,19 @@ function displayWeekdaysNav() {
 
 	// compare weekly entries & dates for this week
 	const weekDaysArray = weekArray.map(entry => entries.find(e => e.day === entry.day) || entry);
-	const latestEntry = entries.slice(entries.length -1);
-	const latestDay = latestEntry[0].day;
-	const latestIndex = weekArray.findIndex(i => i.day === latestDay);
+	const today = moment().startOf('day').toISOString();
+	const latestIndex = weekArray.findIndex(i => i.iso === today);
 
-	// remove dates after today & today from list
-	let weekDays = weekDaysArray.slice(0, latestIndex + 1);
-	const targetDate = weekDays.find(e => e.iso === TargetEntry.date);
+	// remove dates after today
+	let weekDays;
+	if (latestIndex === -1) {
+		weekDays = weekDaysArray;
+	} else {
+		weekDays = weekDaysArray.slice(0, latestIndex + 1);
+	}
+
+	// single out target date to display it on top & remove it from list
+	const targetDate = weekDays.find(entry => entry.iso === TARGETENTRY.date);
 	weekDays.forEach((day, i) => {
 		if (day.date === targetDate.date) {
 			weekDays.splice(i, 1);
@@ -172,19 +182,21 @@ function displayWeekdaysNav() {
 function getWeekDaysTemplate(weekDays, targetDate) {
 	return `
 		<div class="nav-container">
-			<img src="../images/day-${targetDate.day}.svg" class="day-display">
-			<div class="day-header">
-				<h4>${targetDate.day}</h4>
-				<p>${targetDate.date}</p>
+			<div>
+				<img src="../images/day-${targetDate.day}.svg" class="day-display">
+				<div class="day-header">
+					<h4>${targetDate.day}</h4>
+					<p>${targetDate.date}</p>
+				</div>			
+				<button><i class="icon-drop"></i></button>
 			</div>
-			<button><i class="icon-drop"></i></button>
 		</div>
 		<ul class="dropdown-content">
 			${weekDays.map(entry => 
 				`${entry.meal ? `
-						<li id="${entry.iso}" class="day"><a>${entry.day}</a></li>
+						<li id="${entry.iso}" class="day">${entry.day}</li>
 					` : `
-						<li id="${entry.iso}" class="day gray"><a>${entry.day}</a></li>
+						<li id="${entry.iso}">${entry.day}</li>
 					`}`
 				).join("")}
 		</ul>`;
@@ -198,23 +210,23 @@ function handleDropDownClicked() {
 
 function handleDayClicked() {
 	$('nav').on('click', 'li', (e) => {
-		const date = ($(e.target).attr('id'));
+		const date = $(e.target).attr('id');
 		getEntry(date);
 	});
 }
 
 // display entry //
 function displayEntry(entry) {
-	// update WeeklyEntries(used to navigate weekdays)
+	// update WEEKLYENTRIES(used to navigate weekdays)
 	const targetDate = entry.date;
-	const targetEntry = WeeklyEntries.findIndex(e => e.date === targetDate);
+	const targetEntry = WEEKLYENTRIES.findIndex(e => e.date === targetDate);
 
 	if (targetEntry === -1) {
-		WeeklyEntries.push(entry);
+		WEEKLYENTRIES.push(entry);
 	} else {
-		WeeklyEntries[targetEntry] = entry;
+		WEEKLYENTRIES[targetEntry] = entry;
 	}
-	TargetEntry = entry;
+	TARGETENTRY = entry;
 
 	displayWeekdaysNav();
 
@@ -515,7 +527,7 @@ function handleRemoveDish() {
 
 function handleMealSave() {
 	$('main').on('click', '.form-save', (e) => {
-		const entryId = TargetEntry._id;
+		const entryId = TARGETENTRY._id;
 		const mealType = $(e.target).closest('.meal-container').find('h2').attr('class');
 		const mealName = $(e.target).closest('.meal-container').find('h2').html();
 
@@ -536,7 +548,7 @@ function handleMealSave() {
 			mealNotes = notesInput;
 		}
 
-		const date = TargetEntry.date;
+		const date = TARGETENTRY.date;
 		const timeInput = $(`#form-time-${mealType}`).val();
 
 		if (!$(`main .${mealType}-container .food-items`).length) {
@@ -573,7 +585,7 @@ function postMealRequest(entryId, mealInputs) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
@@ -586,7 +598,7 @@ function getMealRequest(entryId, mealId) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
@@ -633,7 +645,7 @@ function handleMealEdit() {
 }
 
 function displayMealEdit(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput) {
-	const entryId = TargetEntry._id;
+	const entryId = TARGETENTRY._id;
 	// const mealId = $(`.${mealType}`).attr("id");
 	const mealCopy = $(`.${mealType}-container`).html();
 	const mealEditTemplate = makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, notesInput, timeInput);
@@ -779,7 +791,7 @@ function handleEditSave(mealName, mealType, entryId, mealId) {
 		mealNotes = notesInput;
 	}
 
-	const date = TargetEntry.date;
+	const date = TARGETENTRY.date;
 	const timeInput = $(`#form-time-${mealType}`).val();
 
 	if (!$(`main .${mealType}-container .food-items`).length) {
@@ -822,7 +834,7 @@ function putMealRequest(mealInputs, entryId, mealId) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }
@@ -830,7 +842,7 @@ function putMealRequest(mealInputs, entryId, mealId) {
 ///// DELETE MEAL /////
 function handleMealDelete() {
 	$('main').on('click', '.delete-btn', (e) => {
-		const entryId = TargetEntry._id;
+		const entryId = TARGETENTRY._id;
 		const mealId = $(e.target).parent().siblings('h2').attr('id');
 		const mealType = $(e.target).parent().siblings('h2').attr('class');
 		const deleteMessage = `<p>Remove Meal?</p>
@@ -860,7 +872,7 @@ function deleteMealRequest(entryId, mealId, mealType) {
 		dataType: 'json',
 		success: displayEmptyMeal(mealType),
 		error: function(err) {
-			console.log(err);
+			alert(err);
 		}
 	});
 }

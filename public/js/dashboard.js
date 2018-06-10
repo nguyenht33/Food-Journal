@@ -15,11 +15,15 @@ function displayHeader() {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const firstname = user.firstname;
 	const template = `<div class="header-container">
-											<div class="header-box"><a href="/dashboard">
-												<i class="icon-journal"></i></a>
-												<h4>${firstname}'s journal</h4>
+											<div class="header-box">
+												<div>
+													<a href="/dashboard"><i class="icon-journal"></i></a>
+													<h4>${firstname}'s journal</h4>
+												</div>
+												<div>
+													<a id="logout">log out</a>
+												</div>
 											</div>
-											<div class="header-box"><a id="logout">log out</a></div>
 										</div>`
 	$('header').html(template);
 }
@@ -136,7 +140,7 @@ function weekOfMonth(date) {
 
 function logOutClicked() {
 	$('body').on('click', '#logout', (e) => {
-		document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  	document.cookie = 'authToken=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
 		window.location = '/';
 	});
 }

@@ -105,30 +105,12 @@ describe('Users Intergration Test With JWT', () => {
 					.post('/api/auth/login')
 					.send({ username, password })
 					.end((err, res) => {
-						authToken = res.body.authToken;
+						authToken = res.headers['set-cookie'].pop().split(';')[0].slice(10);
 						done();
 					});
 			})
 			.catch(err => console.log(err));
 	});
-
-	// describe('GET /api/users', () => {
-	// 	it ('Should be able to get user by id', (done) => {
-	// 		User.findOne()
-	// 			.then(user => {
-	// 				request(app)
-	// 					.get(`/api/users/${user._id}`)	
-	// 					.expect(200)
-	// 					.end((err, res) => {
-	// 						if(err) {
-	// 							return done(err)
-	// 						}
-	// 						assert(user.id === res.body.id);
-	// 						done();
-	// 					});	
-	// 			});
-	// 	});
-	// });
 
 	describe('PUT /api/users/:userId', () => {
 		it ('Should update user by id', (done) => {
@@ -143,7 +125,7 @@ describe('Users Intergration Test With JWT', () => {
 				.then(user => {
 					request(app)
 						.put(`/api/users/${user.id}`)
-						.set('Authorization', 'Bearer ' + authToken)
+						.set('Cookie', [`authToken=${authToken}`])
 						.send(updatedUser)
 						.expect(204)
 						.end((err, res) => {
@@ -171,7 +153,7 @@ describe('Users Intergration Test With JWT', () => {
 					user = _user;
 					request(app)
 						.delete(`/api/users/${user.id}`)
-						.set('Authorization', 'Bearer ' + authToken)
+						.set('Cookie', [`authToken=${authToken}`])
 						.expect(204)
 						.end((err, res) => {
 							if(err) {

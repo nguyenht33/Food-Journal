@@ -150,7 +150,14 @@ header a {
 }
 
 .header-container {
-	height: 20px;
+
+	height: 20px;	
+	padding: 6px 10px;
+	margin: 0 auto;
+	background-color: #cc6666;
+}
+
+.header-box {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -159,13 +166,11 @@ header a {
 	letter-spacing: 1.5px;
 	color: white;
 	text-transform: capitalize;
-	background-color: #cc6666;
-	padding: 6px 10px;
-	border-bottom: 1px solid #cc9999;
 }
 
-.header-box:first-child {
+.header-box > div {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 }
 
@@ -446,19 +451,22 @@ main {
 nav {
 	width: 100%;
 	margin-bottom: 5px;
-	cursor: pointer;
+	cursor: pointer;	
 }
 
 .nav-container {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	padding: 12px;
 	-webkit-box-shadow: 0px 2px 5px 0px rgba(110,110,110,0.51);
 	-moz-box-shadow: 0px 2px 5px 0px rgba(110,110,110,0.51);
 	box-shadow: 0px 2px 5px 0px rgba(110,110,110,0.51);
 	background-color: #339999;
+}
+
+.nav-container div:first-child {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .day-header {
@@ -537,7 +545,7 @@ nav button {
 }
 
 .snack_1-container, .snack_2-container, .snack_3-container {
-	background-color: #e4d6cd;
+	background-color: #eae8e3;
 }
 
 .meal-container h2 {
@@ -844,6 +852,7 @@ nav button {
 	color: #505050;
 	text-align: center;
 	font-size: 20px;
+	margin-bottom: 0;
 }
 
 .empty button {
@@ -877,6 +886,15 @@ nav button {
 
 
 @media only screen and (min-width: 640px) {
+	.nav-container > div:first-child {
+		width: 700px;
+		margin: 0 auto;
+	}
+
+	.header-box {
+		width: 700px;
+		margin: 0 auto;
+	}
 	.dropdown-content {
 		width: 620px;
 		margin: 0 auto;
