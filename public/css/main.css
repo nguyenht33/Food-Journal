@@ -91,8 +91,6 @@ button {
   content: "\e914";
 }
 
-
-
 body {
 	background-color: #ebe8dd;
 	background-image: url("../images/whitey.png");
@@ -508,9 +506,9 @@ nav button {
 }
 
 .dropdown-content li {
-	padding: 15px 0px;
 	font-size: 18px;
-	color: #003333;
+	font-weight: 600;
+	color: #006666;
 	cursor: pointer;
 }
 
@@ -522,11 +520,17 @@ nav button {
 	background-color: #eebebe;
 }
 
-/*.gray {
-	color: gainsboro;
+.dropdown-content li a {
+	text-decoration: none;
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 15px 0px;
 }
-*/
 
+.dropdown-content li a:visited {
+	color: #006666;
+}
 
 .entries-container {
 	margin: 0 auto;
@@ -632,7 +636,7 @@ nav button {
 }
 
 .food-items > .dish-row:before {
-	content: '- ';
+	content: ' ';
 }
 
 .meal-form-container {

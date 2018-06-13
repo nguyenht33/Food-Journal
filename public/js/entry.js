@@ -2,10 +2,12 @@ let WEEKLYENTRIES; // store entries for one week, use to navigate weekdays nav
 let TARGETENTRY; // store one entry, use to display selected weekday
 
 function init() {
+	// loadState();
+	// locationHashChanged();
 	displayHeader();
 	checkRoute();
 	handleDropDownClicked();
-	handleDayClicked();
+	// handleDayClicked();
 	handleAddMeal();
 	handleCloseMeal();
 	handleAddDish();
@@ -14,6 +16,21 @@ function init() {
 	handleMealEdit();
 	handleMealDelete();
 }
+
+window.onhashchange = locationHashChanged;
+
+// function loadState() {
+// 	const urlHash = window.location.hash.substr(1);
+// 	if (urlHash === undefined || urlHash === '') {
+// 		console.log('checking route');
+// 		checkRoute();
+// 	} else {
+// 		console.log('getting route')
+// 		getEntry(urlHash);
+// 	}
+// }
+
+
 
 //// CHECK IF TODAY'S ENTRY OR PREVIOUS ENTRY ROUTE ////
 function checkRoute() {
@@ -25,7 +42,43 @@ function checkRoute() {
 	}
 }
 
-//// GET ENTRIES FOR 7 DAYS ////
+// when user clicks on a date in nav
+function locationHashChanged() {
+	const urlHash = window.location.hash.substr(1);
+	const targetWeek = JSON.parse(localStorage.getItem('TargetWeek'));
+
+	if (targetWeek === null) {
+		getThisWeeksEntries();
+	} else {
+		getPreviousWeeksEntries(targetWeek);
+	}
+}
+
+//// GET ENTRIES FOR 7 DAYS TO STORE ////
+function getThisWeeksEntries() {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const userId = user._id;
+	const today = moment().startOf('day').toISOString();
+	const endDate = today;
+	const startDate = moment(today).startOf('week').toISOString();
+
+	$.ajax({
+		url: `/api/entries/week/${userId}/`,
+		type: 'GET',
+		data: {
+			startDate: startDate,
+			endDate: endDate
+		},
+		contentType: 'application/json',
+		dataType: 'json',
+		success: displayTodayEntry,
+		error: function(err) {
+			alert(err);
+		}
+	});
+}
+
+//// GET ENTRIES FOR 7 DAYS TO STORE ////
 function getPreviousWeeksEntries(targetWeek) {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const userId = user._id;
@@ -56,35 +109,20 @@ function getPreviousWeeksEntries(targetWeek) {
 	});
 }
 
-//// GET ENTRIES FOR 7 DAYS ////
-function getThisWeeksEntries() {
-	const user = JSON.parse(localStorage.getItem('user'));
-	const userId = user._id;
-	const today = moment().startOf('day').toISOString();
-	const endDate = today;
-	const startDate = moment(today).startOf('week').toISOString();
-
-	$.ajax({
-		url: `/api/entries/week/${userId}/`,
-		type: 'GET',
-		data: {
-			startDate: startDate,
-			endDate: endDate
-		},
-		contentType: 'application/json',
-		dataType: 'json',
-		success: displayTodayEntry,
-		error: function(err) {
-			alert(err);
-		}
-	});
-}
-
 function displayTodayEntry(entries) {
 	WEEKLYENTRIES = entries['entries'];
-	const todaysDate = moment().startOf('day').toISOString();
+	let todaysDate;
+	const urlHash = window.location.hash.substr(1);
+	
+	// display stored hash or display today
+	if (urlHash === '') {
+		todaysDate = moment().startOf('day').toISOString();
+	} else {
+		todaysDate = urlHash;
+	}
 	const todaysEntry = entries['entries'].find(e => e.date === todaysDate);
 
+	// display today's entry or make new entry for today
 	if (todaysEntry) {
 		displayEntry(todaysEntry);
 	} else {
@@ -94,16 +132,24 @@ function displayTodayEntry(entries) {
 
 function displayPreviousEntries(entries) {
 	WEEKLYENTRIES = entries['entries'];
-
-	// displays first day of week
+	let targetDate;
 	const dayOfWeek = entries['entries'][0].date;
 	const firstDayOfWeek = moment(dayOfWeek).locale('en-gb').weekday(dayOfWeek).startOf('week').toISOString();
-	const targetEntry = entries['entries'].find(e => e.date === firstDayOfWeek);
+	const urlHash = window.location.hash.substr(1);
 
+	// display stored hash or first day of week 
+	if (urlHash === '') {
+		targetDate = firstDayOfWeek;
+	} else {
+		targetDate = urlHash;
+	}
+	const targetEntry = entries['entries'].find(e => e.date === targetDate);
+
+	// display entry or get/make new entry
 	if (targetEntry) {
 		displayEntry(targetEntry);
 	} else {
-		getEntry(firstDayOfWeek);
+		getEntry(targetDate);
 	}
 }
 
@@ -194,9 +240,9 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 		<ul class="dropdown-content">
 			${weekDays.map(entry => 
 				`${entry.meal ? `
-						<li id="${entry.iso}" class="day">${entry.day}</li>
+						<li id="${entry.iso}" class="day"><a href="#${entry.iso}">${entry.day}</a></li>
 					` : `
-						<li id="${entry.iso}">${entry.day}</li>
+						<li id="${entry.iso}"><a href="#${entry.iso}">${entry.day}</a></li>
 					`}`
 				).join("")}
 		</ul>`;
@@ -205,13 +251,6 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 function handleDropDownClicked() {
 	$('nav').on('click', (e) => {
 		$('.dropdown-content').toggleClass('show');
-	});
-}
-
-function handleDayClicked() {
-	$('nav').on('click', 'li', (e) => {
-		const date = $(e.target).attr('id');
-		getEntry(date);
 	});
 }
 
@@ -398,7 +437,6 @@ function handleAddMeal() {
 	$('main').on('click', '.add-meal', (e) => {
 		const mealType = $(e.target).parent().siblings('h2').attr('class');
 		const mealName = $(e.target).parent().siblings('h2').html();
-		console.log(mealType)
 		displayNewMealForm(mealType, mealName);
 	});
 }
@@ -684,7 +722,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 					<div class="dish-input dish-row">${food.dish}</div>
 					<div class="calories-input cal-row">${food.cal}</div>
 					<div class="servings-input serv-row">${food.serv}</div>
-					<div><button class="remove-dish-btn"><i class="icon-close"></i></button></div>
+					<div><button class="remove-dish-btn"><i class="icon-delete"></i></button></div>
 			</div>`).join("")}`
 
 	const mealForm = 

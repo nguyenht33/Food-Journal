@@ -80,11 +80,6 @@ function closeServer() {
   });
 }
 
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname+'/public/html/home.html');
-// });
-
-
 if (require.main === module) {
   runServer(DATABASE_URL).catch(err => console.error(err));
 };
