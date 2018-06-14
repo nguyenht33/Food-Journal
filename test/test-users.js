@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
-const { users } = mongoose.connection.collections;
+// const { users } = mongoose.connection.collections;
 const { app } = require('../server');
 const { Entry } = require('../entries');
 const { User } = require('../users');
@@ -20,7 +20,6 @@ describe('Users Testings', () => {
 	before(function() {
 			return runServer(TEST_DATABASE_URL);
 	});
-
 	after(function() {
 	    return closeServer();
 	});
@@ -36,10 +35,11 @@ describe('Users Testings', () => {
 				lastname: 'schmoe'
 			});
 		});
-		afterEach(function() {
-	  	return users.drop();
-		});
 
+		afterEach(function() {
+			mongoose.connection.collections['users'].drop( function(err) {
+			});
+		});
 
 		it ('Should create a new user', (done) => {
 			joe.save()
@@ -72,7 +72,8 @@ describe('Users Testings', () => {
 
 	describe('POST /api/users', () => {
 		afterEach(function() {
-	  	return users.drop();
+			mongoose.connection.collections['users'].drop( function(err) {
+			});
 		});
 
 		it ('Should be able to create a new user', (done) => {
@@ -109,7 +110,8 @@ describe('Users Testings', () => {
 	describe('/api/auth', () => {
 		beforeEach(populateUser);
 		afterEach(function() {
-	  	return users.drop();
+			mongoose.connection.collections['users'].drop( function(err) {
+			});
 		});
 
 		describe('/api/auth/login', () => {
@@ -236,10 +238,11 @@ describe('Users Testings', () => {
 
 		describe('PUT /api/users/:userId', () => {
 			beforeEach(populateUser);
+			beforeEach(loginUser);			
 			afterEach(function() {
-		  	return users.drop();
+				mongoose.connection.collections['users'].drop( function(err) {
+				});
 			});
-			beforeEach(loginUser);
 
 			it ('Should update user by id', (done) => {
 				const updatedUser = {
@@ -274,10 +277,11 @@ describe('Users Testings', () => {
 
 		describe('DELETE /api/users/:userId', () => {
 			beforeEach(populateUser);
+			beforeEach(loginUser);			
 			afterEach(function() {
-		  	return users.drop();
+				mongoose.connection.collections['users'].drop( function(err) {
+				});
 			});
-			beforeEach(loginUser);
 
 			it('Should delete user by id', (done) => {
 				User.findOne()
