@@ -9,7 +9,6 @@ $('main').on('click', '.about', (e) => {
 });
 
 $('main').on('click', '.about-close', (e) => {
-	console.log('click')
 	$('.about-container').html('<button class="about">About</button>');
 	$('.about-container').removeClass('expand');
 });

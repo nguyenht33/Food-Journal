@@ -54,7 +54,7 @@ function getEntries(userId) {
 		dataType: 'json',
 		success: displayMonths,
 		error: function(err) {
-			console.log(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -68,7 +68,6 @@ function displayMonths(entries) {
 	});
 	MonthEntries = entriesArr;
 
-	console.log(entries, entriesArr)
 	const entryMonths = entries.map(e => {
 		return moment(e.date).format('MMMM');
 	});
