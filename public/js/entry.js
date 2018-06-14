@@ -2,12 +2,10 @@ let WEEKLYENTRIES; // store entries for one week, use to navigate weekdays nav
 let TARGETENTRY; // store one entry, use to display selected weekday
 
 function init() {
-	// loadState();
-	// locationHashChanged();
+	locationHashChanged();
 	displayHeader();
 	checkRoute();
 	handleDropDownClicked();
-	// handleDayClicked();
 	handleAddMeal();
 	handleCloseMeal();
 	handleAddDish();
@@ -18,19 +16,6 @@ function init() {
 }
 
 window.onhashchange = locationHashChanged;
-
-// function loadState() {
-// 	const urlHash = window.location.hash.substr(1);
-// 	if (urlHash === undefined || urlHash === '') {
-// 		console.log('checking route');
-// 		checkRoute();
-// 	} else {
-// 		console.log('getting route')
-// 		getEntry(urlHash);
-// 	}
-// }
-
-
 
 //// CHECK IF TODAY'S ENTRY OR PREVIOUS ENTRY ROUTE ////
 function checkRoute() {
@@ -73,7 +58,7 @@ function getThisWeeksEntries() {
 		dataType: 'json',
 		success: displayTodayEntry,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -104,7 +89,7 @@ function getPreviousWeeksEntries(targetWeek) {
 		dataType: 'json',
 		success: displayPreviousEntries,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -164,7 +149,7 @@ function getEntry(date) {
 		dataType: 'json',
 		success: displayEntry,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -578,6 +563,7 @@ function handleMealSave() {
 		})
 
 		const rankInput = $('input[name=rank]:checked', `main #${mealType}-rank`).val();
+
 		const notesInput = $(`main #${mealType}-notes`).val();
 		let mealNotes;
 		if (notesInput === '') {
@@ -585,7 +571,6 @@ function handleMealSave() {
 		} else {
 			mealNotes = notesInput;
 		}
-
 		const date = TARGETENTRY.date;
 		const timeInput = $(`#form-time-${mealType}`).val();
 
@@ -596,7 +581,7 @@ function handleMealSave() {
 		} else if (!timeInput) {
 			$(`main .${mealType}-container .time-err`).html('<p>Please fill out time</p>')
 		} else {
-			const mealRank = rankInput;
+			const mealRank = parseInt(rankInput);
 			const currentTime = moment(timeInput, 'HH:mm A').toISOString();
 			const time = date.slice(0, -13).concat(currentTime.slice(-13));
 			const	mealTime = moment(time).format('hh:mm A');
@@ -623,7 +608,7 @@ function postMealRequest(entryId, mealInputs) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -636,7 +621,7 @@ function getMealRequest(entryId, mealId) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -872,7 +857,7 @@ function putMealRequest(mealInputs, entryId, mealId) {
 		dataType: 'json',
 		success: displayMeal,
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }
@@ -910,7 +895,7 @@ function deleteMealRequest(entryId, mealId, mealType) {
 		dataType: 'json',
 		success: displayEmptyMeal(mealType),
 		error: function(err) {
-			alert(err);
+			alert('Something went wrong');
 		}
 	});
 }

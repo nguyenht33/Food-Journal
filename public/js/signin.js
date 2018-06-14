@@ -60,7 +60,8 @@ function makeSignupRequest(username, email, password, firstname, lastname) {
 }
 
 function signupError(err) {
-	console.log(err);
+	const message = err.responseJSON.message;
+	$('.signin-err').html(`<p>${message}</p>`);
 }
 
 function handleSignupSubmit() {

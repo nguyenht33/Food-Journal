@@ -7,7 +7,7 @@ const expect = chai.expect;
 const request = require('supertest');
 let authToken;
 let testUser;
-let userId = mongoose.Types.ObjectId();
+let userId = new mongoose.mongo.ObjectId('56cb91bdc3464f14678934ca');
 
 const makeUser = (done) => {
 	  User.hashPassword('password').then((hash) => {
@@ -17,7 +17,7 @@ const makeUser = (done) => {
 				password: hash,
 				username: 'userjoe',
 				firstname:'joe',
-				lastname:'doe'
+				lastname:'schmoe'
   		})
   	})
 }
@@ -75,24 +75,5 @@ const populateUserEntry = (done) => {
 		return Promise.resolve();
 	}).then(() => done());
 };
-
-// const loginUser = (done) => {
-// 	User.findOne().then(_user => {
-// 		request(app)
-// 			.post('/api/auth/login')
-// 			.send({ username: 'userjoe', password: 'password' })
-// 			.expect(200)
-// 			.end((err, res) => {
-// 				if (err) {
-// 					return done(err);
-// 				}
-// 				authToken = res.headers['set-cookie'].pop().split(';')[0].slice(10);
-// 				console.log(authToken);
-// 				done();
-// 			});
-// 	});
-// }
-
-
 
 module.exports = {populateUser, populateEntry, populateUserEntry};

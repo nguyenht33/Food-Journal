@@ -15,7 +15,6 @@ router.post('/', jsonParser, (req, res) => {
 	User
 		.find({ $or: [{ username: username }, { email: email }] })
 		.then(users => {
-			console.log(users);
 			if (users.length === 0) {
 				return User.hashPassword(password);
 			}
@@ -56,17 +55,6 @@ router.post('/', jsonParser, (req, res) => {
 			res.status(500).json({code:500, message: 'Internal server error'})
 		});
 });
-
-// router.get('/:userId', jsonParser, jwtAuth, (req, res) => {
-// 	console.log('getting user data');
-// 	User
-// 		.findOne({_id: req.params.userId})
-// 		.populate('entries')
-// 		.then(user => {
-// 			res.status(200).send(user.serialize());
-// 		})
-// 		.catch(err => res.send(err));
-// });
 
 router.put('/:userId', jsonParser, jwtAuth, (req, res) => {
 	User

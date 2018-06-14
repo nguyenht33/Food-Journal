@@ -124,8 +124,10 @@ router.post('/meals/:entryId', jsonParser, jwtAuth, (req, res) => {
 				return entry.save();
 			}
 		})
-		.then(entry => {
-			res.status(201).send({ mealName, mealType, time, food, rank, notes })
+		.then(_entry => {
+			const targetMeal = _entry.meal_list.find(m => m.mealType === mealType);
+			const _id = targetMeal._id;
+			res.status(201).send({ _id, mealName, mealType, time, food, rank, notes })
 		})
 		.catch(err => {
 			console.error(err);

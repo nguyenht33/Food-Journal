@@ -13,47 +13,7 @@ const { Entry } = require('../entries');
 const { User } = require('../users');
 const	{ runServer, closeServer } = require('../server');
 const	{ TEST_DATABASE_URL } = require('../config');
-const { populateUser, populateEntry, populateUserEntry, loginUser } = require('./seed/seed');
-
-
-
-// describe('Entries Unit Test', () => {
-// 	let testEntry;
-// 	before(() => {
-// 		testEntry = new Entry({
-// 			date: 'March 20, 2018',
-// 			weight: '159'
-// 		});
-// 	});
-
-// 	it ('Should be able to post an entry', (done) => {
-// 		testEntry.save()
-// 			.then(entry => {
-// 				assert(entry._id);
-// 				done();
-// 			})
-// 			.catch(err => {
-// 				console.log(err);
-// 			}); 
-// 	}); 
-
-// 	it ('Should be able to get an entry', (done) => {
-// 		testEntry.save()
-// 			.then(_testEntry => {
-// 				Entry.find({weight: '159'})
-// 					.then(entries => {
-// 						assert(entries[0]._id.toString() === _testEntry._id.toString());
-// 						done();
-// 					})
-// 					.catch(err => {
-// 						console.log(err);
-// 					})
-// 			})
-// 			.catch(err => {
-// 				console.log(err);
-// 			});
-// 	});
-// });
+const { populateUser, populateEntry, populateUserEntry } = require('./seed/seed');
 
 describe('Entries Intergration Test', () => {
 	before(function() {
@@ -89,7 +49,6 @@ describe('Entries Intergration Test', () => {
 				});
 		});
 	}
-
 
 	describe('GET /api/entries/date/:userId', () => {
 		beforeEach(loginUser);
