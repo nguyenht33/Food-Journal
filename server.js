@@ -32,12 +32,14 @@ app.use('/', appRouter);
 app.use('/api/users/', usersRouter);
 app.use('/api/entries/', entriesRouter);
 app.use('/api/auth/', authRouter);
+require('dotenv').config()
 
 let server;
 
-function runServer(databaseUrl, port = PORT) {
+
+function runServer(DATABASE_URL, port = PORT) {
   return new Promise((resolve, reject) => {
-    mongoose.connect(databaseUrl, err => {
+    mongoose.connect(DATABASE_URL, err => {
       if (err) {
         return reject(err);
       }
