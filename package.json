@@ -4,7 +4,8 @@
   "description": "food journal app",
   "main": "server.js",
   "scripts": {
-    "test": "set NODE_ENV=test&& nodemon --exec mocha --recursive -R min"
+    "start": "node server.js",
+    "test": "mocha --exit"
   },
   "author": "Hung Nguyen",
   "license": "ISC",

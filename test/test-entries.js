@@ -50,28 +50,28 @@ describe('Entries Intergration Test', () => {
 		});
 	}
 
-	describe('GET /api/entries/date/:userId', () => {
-		beforeEach(loginUser);
-		const dateQuery = "2018-05-26T04:00:00.000Z";
+	// describe('GET /api/entries/date/:userId', () => {
+	// 	beforeEach(loginUser);
+	// 	const dateQuery = "2018-05-26T04:00:00.000Z";
 
-		it ('Should be able to get an entry from a date', (done) => {
-			User.findOne()
-				.then(user => {
-					request(app)
-						.get(`/api/entries/date/${user.id}/`)
-						.query({date: dateQuery})
-						.set('Cookie', [`authToken=${authToken}`])
-						.expect(200)
-						.end((err, res) => {
-							if (err) {
-								return done(err);
-							}
-							expect(res.body.user).to.equal(user.id);
-							done();
-						});
-				});
-		});
-	});
+	// 	it ('Should be able to get an entry from a date', (done) => {
+	// 		User.findOne()
+	// 			.then(user => {
+	// 				request(app)
+	// 					.get(`/api/entries/date/${user.id}/`)
+	// 					.query({date: dateQuery})
+	// 					.set('Cookie', [`authToken=${authToken}`])
+	// 					.expect(200)
+	// 					.end((err, res) => {
+	// 						if (err) {
+	// 							return done(err);
+	// 						}
+	// 						expect(res.body.user).to.equal(user.id);
+	// 						done();
+	// 					});
+	// 			});
+	// 	});
+	// });
 
 	describe('GET /api/entries/months/:userId', () => {
 		beforeEach(loginUser);
