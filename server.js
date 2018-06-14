@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config()
 const express = require('express'),
       app = express(),
       path = require('path');
@@ -32,7 +33,6 @@ app.use('/', appRouter);
 app.use('/api/users/', usersRouter);
 app.use('/api/entries/', entriesRouter);
 app.use('/api/auth/', authRouter);
-require('dotenv').config()
 
 let server;
 
