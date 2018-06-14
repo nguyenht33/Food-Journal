@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "set NODE_ENV=test&& nodemon --exec mocha --recursive -R min"
+    "test": "mocha --exit"
   },
   "author": "Hung Nguyen",
   "license": "ISC",

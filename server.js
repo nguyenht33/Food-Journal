@@ -36,9 +36,7 @@ app.use('/api/auth/', authRouter);
 
 let server;
 
-
 function runServer(DATABASE_URL, port = PORT) {
-  console.log(DATABASE_URL)
   return new Promise((resolve, reject) => {
     mongoose.connect(DATABASE_URL, err => {
       if (err) {
