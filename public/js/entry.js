@@ -214,7 +214,7 @@ function getWeekDaysTemplate(weekDays, targetDate) {
 	return `
 		<div class="nav-container">
 			<div>
-				<img src="../images/day-${targetDate.day}.svg" class="day-display">
+				<img src="public/images/day-${targetDate.day}.svg" class="day-display">
 				<div class="day-header">
 					<h4>${targetDate.day}</h4>
 					<p>${targetDate.date}</p>
@@ -328,7 +328,7 @@ function createMealTemplate(meal) {
 		<h4>This meal's ranking</h4>
 		<ul class="ranking">
 			 ${ranks.map((rank) => `
-  				<li><img src="../images/smilie-${rank}.svg" class="smilie-${rank}"></li>
+  				<li><img src="public/images/smilie-${rank}.svg" class="smilie-${rank}"></li>
 				`).join('')}
 		</ul>`
 
@@ -353,7 +353,7 @@ function createMealTemplate(meal) {
 				<div class="meal-right">
 					<div>
 						${time}
-						<img src="../images/meal-${meal.mealName}.svg" class="meal-img">
+						<img src="public/images/meal-${meal.mealName}.svg" class="meal-img">
 						<input type="button" value="Edit" class="edit-meal">
 					</div>
 				</div>
@@ -375,7 +375,7 @@ function createEmptyMealTemplate(type) {
 	}
 	return `
 		<div class="meal-container ${type}-container empty">
-			<img src="../images/meal-${mealName}.svg" class="meal-empty-img">
+			<img src="public/images/meal-${mealName}.svg" class="meal-empty-img">
 			<h2 class="${type}">${mealName}</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>`
@@ -385,33 +385,33 @@ function createAllMealsTemplate() {
 	return `
 	<div class="entries-container">
 		<div class="meal-container breakfast-container empty">
-			<img src="../images/meal-breakfast.svg" class="meal-empty-img">
-			<h2 class="breakfast">Breakfast</h2>
+			<img src="public/images/meal-breakfast.svg" class="meal-empty-img">
+			<h2 class="breakfast">breakfast</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_1-container empty">
-			<img src="../images/meal-morning snack.svg" class="meal-empty-img">
-			<h2 class="snack_1">Morning Snack</h2>
+			<img src="public/images/meal-morning snack.svg" class="meal-empty-img">
+			<h2 class="snack_1">morning snack</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container lunch-container empty">
-			<img src="../images/meal-lunch.svg" class="meal-empty-img">
-			<h2 class="lunch">Lunch</h2>
+			<img src="public/images/meal-lunch.svg" class="meal-empty-img">
+			<h2 class="lunch">lunch</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_2-container empty">
-			<img src="../images/meal-afternoon snack.svg" class="meal-empty-img">
-			<h2 class="snack_2">Afternoon Snack</h2>
+			<img src="public/images/meal-afternoon snack.svg" class="meal-empty-img">
+			<h2 class="snack_2">afternoon snack</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container dinner-container empty">
-			<img src="../images/meal-dinner.svg" class="meal-empty-img">
-			<h2 class="dinner">Dinner</h2>
+			<img src="public/images/meal-dinner.svg" class="meal-empty-img">
+			<h2 class="dinner">dinner</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 		<div class="meal-container snack_3-container empty">
-			<img src="../images/meal-evening snack.svg" class="meal-empty-img">
-			<h2 class="snack_3">Evening Snack</h2>
+			<img src="public/images/meal-evening snack.svg" class="meal-empty-img">
+			<h2 class="snack_3">evening snack</h2>
 			<button class="add-meal"><i class="icon-plus"></i></button>
 		</div>
 	</div>`
@@ -463,7 +463,7 @@ function displayNewMealForm(mealType, mealName) {
 				${ranks.map((rank) => `
 					<div class="rank-button">					
 					<input type="radio" name="rank" value="${rank}" id="radio-${rank}" class="radio-item">
-  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="../images/smilie-${rank}.svg"></label>
+  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="public/images/smilie-${rank}.svg"></label>
 					</div>
 				`).join('')}
 			</form>
@@ -484,7 +484,7 @@ function displayNewMealForm(mealType, mealName) {
 				<input type="time" name="time" value="${currentTime}" id="form-time-${mealType}">
 			</form>
 			<div class="time-err"></div>					
-			<img src="../images/meal-${mealName}.svg" class="meal-img">
+			<img src="public/images/meal-${mealName}.svg" class="meal-img">
 	</div>`
 
 	const template = 
@@ -756,7 +756,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 				${Object.keys(ranks).map((rank) => `
 					<div class="rank-button">					
 					<input type="radio" name="rank" value="${rank}" id="radio-${rank}" class="radio-item" ${ranks[rank] ? 'checked' : ''}>
-  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="../images/smilie-${rank}.svg"></label>
+  				<label class="label-item smilie-${rank}" for="radio-${rank}"><img src="public/images/smilie-${rank}.svg"></label>
 					</div>
 				`).join('')}
 			</form>
@@ -776,7 +776,7 @@ function makeMealEditTemplate(mealId, mealName, mealType, foodList, rankInput, n
 				<input type="time" name="time" value="${timeInput}" id="form-time-${mealType}">
 			</form>
 			<div class="time-err"></div>
-			<img src="../images/meal-${mealName}.svg" class="meal-img">
+			<img src="public/images/meal-${mealName}.svg" class="meal-img">
 	</div>`
 
 	const template = 
