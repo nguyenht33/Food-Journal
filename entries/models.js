@@ -23,13 +23,6 @@ const EntrySchema = Schema({
 	user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
-EntrySchema.methods.dateId = function() {
-	return {
-		id: this._id,
-		date: this.date
-	};
-};
-
 const Entry = mongoose.model('Entry', EntrySchema);
 
 module.exports = {Entry};
