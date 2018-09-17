@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>On My Plate</title>
+	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" type="image/png" href="images/favicon.png"/>
 	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="../css/main.css">
+	<title>On My Plate</title>
 </head>
-	<body>	
+	<body>
 		<header class="form-header">
 			<a href="/"><img src="../images/logo.svg"></a>
 		</header>
 		<main class="form-main">
-				<div class="login-container">				
+				<div class="login-container">
 					<h2>Sign Up</h2>
 					<form id="js-signup-form">
 						<div>
 							<label>username</label>
 							<input required type="text" name="username" pattern="[A-Za-z]{4,}" required title="Username must be 4 characters minimum" id="signup-username">
-						</div>	
+						</div>
 						<div>
 							<label>email</label>
 							<input required type="email" name="email" id="signup-email">
-						</div>	
+						</div>
 						<div>
 							<label>password</label>
 							<input required type="password" name="password" pattern=".{6,}" required title="Password must be 6 characters minimum" id="signup-pwd">
@@ -29,17 +31,17 @@
 						<div>
 							<label>first name</label>
 							<input required type="text" name="first name" id="signup-first-name">
-						</div>	
+						</div>
 						<div>
 							<label>last name</label>
 							<input required type="text" name="last name" id="signup-last-name">
-						</div>	
+						</div>
 						<div class="signin-err"></div>
 						<div>
 							<button type="submit">Sign Up</button>
 						</div>
 					</form>
-								</div>
+				</div>
 				<p>Already have an account? <a href="/login">Login Here</a></p>
 		</main>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

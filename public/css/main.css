@@ -7,8 +7,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -19,7 +19,7 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
@@ -120,7 +120,7 @@ body {
 }
 
 .home-header a:hover {
-	color: #cc6666;
+	color: #e54040;
 }
 
 header a {
@@ -129,7 +129,7 @@ header a {
 
 .line {
 	border-top: 1px solid #999999;
-	margin: 5px auto 0; 
+	margin: 5px auto 0;
 	position: relative;
 }
 
@@ -149,10 +149,10 @@ header a {
 
 .header-container {
 
-	height: 20px;	
+	height: 20px;
 	padding: 6px 10px;
 	margin: 0 auto;
-	background-color: #cc6666;
+	background-color: #e54040;
 }
 
 .header-box {
@@ -342,7 +342,7 @@ main {
 }
 
 .form-main button:hover {
-	background-color: #cc6666;
+	background-color: #e54040;
 }
 
 .form-main p {
@@ -358,6 +358,16 @@ main {
 	color: #FD545A;
 	text-align: center;
 	margin: 0;
+}
+
+.demo {
+	text-align: center;
+}
+
+.demo span {
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
 }
 
 /*entry*/
@@ -379,7 +389,7 @@ main {
 }
 
 .previous-entry {
-	background-color: #cc6666;
+	background-color: #e54040;
 }
 
 .month-container {
@@ -400,7 +410,7 @@ main {
 }
 
 .hide-btn {
-  background-color: #CC6666;
+  background-color: #e54040;
 }
 
 .month-container {
@@ -436,7 +446,7 @@ main {
   width: 25px;
   padding: 0px;
   border-radius: 50%;
-  background-color: #CC6666;
+  background-color: #e54040;
   border: none;
   text-align: center;
   color: white;
@@ -449,7 +459,7 @@ main {
 nav {
 	width: 100%;
 	margin-bottom: 5px;
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 .nav-container {
@@ -664,7 +674,7 @@ nav button {
 
 .remove-dish-btn {
 	font-size: 16px;
-	color: #CC6666;
+	color: #e54040;
 	background-color: transparent;
 	border: none;
 }
@@ -787,7 +797,7 @@ nav button {
 
 .edit-meal, .form-save, .edit-save {
 	padding: 6px 15px;
-	background-color: #cc6666;
+	background-color: #e54040;
 	border: none;
 	color: white;
 	font-size: 14px;
@@ -823,12 +833,12 @@ nav button {
 	color: white;
 	width: 40px;
 	padding: 4px 8px;
-	background-color: #cc6666;
+	background-color: #e54040;
 	border: none;
 }
 
 .meal-form-err, .rank-err {
-	color: #CC6666;
+	color: #e54040;
 	font-size: 14px;
 }
 
@@ -857,7 +867,7 @@ nav button {
 }
 
 .empty button {
-	position: absolute;	
+	position: absolute;
 	display: flex;
 	align-items: center;
 	right: 5px;
@@ -870,8 +880,8 @@ nav button {
 }
 
 .empty button:hover {
-	color: #CC6666;
-} 
+	color: #e54040;
+}
 
 .empty img {
 	opacity: .7;
@@ -905,7 +915,3 @@ nav button {
 		width: 40%;
 	}
 }
-
-
-
-
